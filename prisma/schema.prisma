@@ -13,10 +13,9 @@ datasource db {
 model User {
   user_id          Int      @id @default(autoincrement())
   user_username    String   @unique
-  user_email       String   @unique
   user_national_id Int      @unique
   user_password    String
-  user_role        Role
+  user_role        Role?
   Profile          Profile?
 }
 
@@ -25,6 +24,7 @@ model Profile {
   profile_full_name    String
   profile_description  String
   profile_phone_number String
+  profile_email        String     @unique
   profile_status       Status
   profile_user         User       @relation(fields: [profile_user_id], onDelete: Cascade, references: [user_id])
   profile_user_id      Int        @unique
