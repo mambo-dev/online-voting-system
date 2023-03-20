@@ -109,26 +109,6 @@ export default function Register({}: Props) {
             type="password"
           />
 
-          <div className="w-full flex flex-col py-1 gap-y-2 ">
-            <p className="text-gray-700 font-bold text-sm">login as</p>
-            <div className="flex gap-x-2 mt-auto mb-auto">
-              <Radio
-                handleChange={handleChange}
-                checked={values.case_status === "voter"}
-                value="voter"
-                label="open"
-                name="case_status"
-              />
-              <Radio
-                handleChange={handleChange}
-                checked={values.case_status === "candidate"}
-                value="candidate"
-                label="closed"
-                name="case_status"
-              />
-            </div>
-          </div>
-
           <button
             type="submit"
             className="mt-2 py-3 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 shadow text-white text-sm font-medium focus:ring-1 focus:border ring-amber-400 border-amber-300"

@@ -17,7 +17,7 @@ export default function Input({ onChange, value, name, label, type }: Props) {
         onChange={onChange}
         name={name}
         type={type}
-        className="py-3 px-2 rounded-lg outline-none bg-slate-50 border-b border-amber-300 focus:border-amber-600 hover:border-amber-500 "
+        className="py-3 px-2 rounded-lg outline-none bg-slate-50 border  border-amber-300 focus:border-amber-600 focus:ring-2 focus:ring-amber-300 ring-offset-1 hover:border-amber-500 "
       />
     </div>
   );
