@@ -9,3 +9,84 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  user_id          Int      @id @default(autoincrement())
+  user_username    String   @unique
+  user_email       String   @unique
+  user_national_id Int      @unique
+  user_password    String
+  user_role        Role
+  Profile          Profile?
+}
+
+model Profile {
+  profile_id           Int        @id @default(autoincrement())
+  profile_full_name    String
+  profile_description  String
+  profile_phone_number String
+  profile_status       Status
+  profile_user         User       @relation(fields: [profile_user_id], onDelete: Cascade, references: [user_id])
+  profile_user_id      Int        @unique
+  Candidate            Candidate?
+  Voter                Voter?
+}
+
+enum Status {
+  active
+  inactive
+}
+
+enum Role {
+  candidate
+  voter
+  admin
+}
+
+model Candidate {
+  candidate_id                Int     @id @default(autoincrement())
+  candidate_vying_description String
+  candidate_vying_position    String
+  candidate_phone_number      String
+  candidate_profile           Profile @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
+  candidate_profile_id        Int     @unique
+  Vote                        Vote[]
+}
+
+model Voter {
+  voter_id         Int     @id @default(autoincrement())
+  voter_profile    Profile @relation(fields: [voter_profile_id], onDelete: Cascade, references: [profile_id])
+  voter_profile_id Int     @unique
+  Vote             Vote[]
+}
+
+model Admin {
+  admin_id        Int    @id @default(autoincrement())
+  admin_full_name String
+}
+
+model Vote {
+  vote_id           Int       @id @default(autoincrement())
+  vote_voter        Voter     @relation(fields: [vote_voter_id], onDelete: Cascade, references: [voter_id])
+  vote_voter_id     Int
+  vote_candidate    Candidate @relation(fields: [vote_candidate_id], onDelete: Cascade, references: [candidate_id])
+  vote_candidate_id Int
+  vote_election     Election  @relation(fields: [vote_election_id], onDelete: Cascade, references: [election_id])
+  vote_election_id  Int
+}
+
+model Election {
+  election_id         Int      @id @default(autoincrement())
+  election_name       String
+  election_start_date DateTime
+  election_end_date   DateTime
+  election_status     DateTime
+  election_desription String
+  Vote                Vote[]
+}
+
+enum ElectionStatus {
+  open
+  closed
+  upcoming
+}

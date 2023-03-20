@@ -25,7 +25,7 @@ export default function Register({}: Props) {
     setLoading(true);
     setErrors([]);
     try {
-      const res = await axios.post(`api/auth/login`, {
+      const res = await axios.post(`api/auth/signup`, {
         ...values,
       });
 
