@@ -80,27 +80,19 @@ export default function Register({}: Props) {
           className="flex z-10 md:-ml-16 mt-20 flex-col h-fit items-center justify-center gap-y-4 bg-white shadow rounded-lg py-10 px-8 w-full md:w-1/2"
           onSubmit={handleSubmit}
         >
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
-            <Input
-              value={values.username}
-              onChange={handleChange}
-              name="username"
-              label="username"
-            />
-            <Input
-              value={values.national_id}
-              onChange={handleChange}
-              name="national_id"
-              label="national_id"
-            />
-          </div>
           <Input
-            value={values.email}
+            value={values.username}
             onChange={handleChange}
-            name="email"
-            label="email"
-            type="email"
+            name="username"
+            label="username"
           />
+          <Input
+            value={values.national_id}
+            onChange={handleChange}
+            name="national_id"
+            label="national_id"
+          />
+
           <Input
             value={values.password}
             onChange={handleChange}
