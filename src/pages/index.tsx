@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import axios from "axios";
 import Head from "next/head";
 import Image from "next/image";
@@ -23,25 +24,27 @@ export default function Home() {
     setLoading(true);
     setErrors([]);
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_URL}/api/auth/login`,
-        {
-          ...values,
-        }
-      );
+      const login = await axios.post(`api/auth/login`, {
+        ...values,
+      });
 
       const {
-        user,
-        error: serverErrors,
+        loggedin,
+        errors: loginErrors,
       }: {
-        user: any | null;
-        error: HandleError[] | [];
-      } = await res.data;
+        loggedin: {
+          user_id: number;
+          user_username: string;
+          user_national_id: number;
+          user_role: Role | null;
+        } | null;
+        errors: HandleError[] | [];
+      } = await login.data;
 
-      if (serverErrors.length > 0 || !user) {
+      if (loginErrors.length > 0 || !loggedin) {
         setLoading(false);
 
-        setErrors([...serverErrors]);
+        setErrors([...loginErrors]);
         return;
       }
       setSuccess(true);
@@ -50,7 +53,7 @@ export default function Home() {
         setSuccess(false);
       }, 1000);
       setTimeout(() => {
-        router.push("/admin/projects");
+        router.push("/dashboard");
       }, 2000);
       setLoading(false);
     } catch (error: any) {

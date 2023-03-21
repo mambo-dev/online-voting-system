@@ -7,9 +7,15 @@ import { handleBodyNotEmpty } from "../../../backend-utils/validation";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
+import { Role, User } from "@prisma/client";
 
 type Data = {
-  loggedin: boolean | null;
+  loggedin: {
+    user_id: number;
+    user_username: string;
+    user_national_id: number;
+    user_role: Role | null;
+  } | null;
   errors: HandleError[] | [];
 };
 
@@ -20,7 +26,7 @@ export default async function handler(
   try {
     if (req.method !== "POST") {
       return res.status(403).json({
-        loggedin: false,
+        loggedin: null,
         errors: [
           {
             message: "invalid method",
@@ -32,7 +38,7 @@ export default async function handler(
 
     if (noEmptyValues.length > 0) {
       return res.status(200).json({
-        loggedin: false,
+        loggedin: null,
         errors: [...noEmptyValues],
       });
     }
@@ -46,7 +52,7 @@ export default async function handler(
 
     if (!findUser) {
       return res.status(200).json({
-        loggedin: false,
+        loggedin: null,
         errors: [
           {
             message: "incorrect username or password",
@@ -58,7 +64,7 @@ export default async function handler(
 
     if (!valid) {
       return res.status(200).json({
-        loggedin: false,
+        loggedin: null,
         errors: [
           {
             message: "incorrect username or password",
@@ -87,13 +93,15 @@ export default async function handler(
       })
     );
 
-    return res.status(500).json({
-      loggedin: true,
+    const { user_password, ...loggedin } = findUser;
+
+    return res.status(200).json({
+      loggedin: loggedin,
       errors: [],
     });
   } catch (error: any) {
     return res.status(500).json({
-      loggedin: false,
+      loggedin: null,
       errors: [
         {
           message: error.message,

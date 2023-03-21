@@ -34,7 +34,31 @@ export default async function handler(
         errors: [...noEmptyValues],
       });
     }
-    const { national_id, username, password, confirmPassword } = req.body;
+    const { nationalId, username, password, confirmPassword } = req.body;
+
+    const usernameExists = await prisma.user.findUnique({
+      where: {
+        user_username: username,
+      },
+    });
+    const idExists = await prisma.user.findUnique({
+      where: {
+        user_national_id: Number(nationalId),
+      },
+    });
+
+    if (usernameExists || idExists) {
+      return res.status(200).json({
+        created: false,
+        errors: [
+          {
+            message: `already have an account under this ${
+              usernameExists ? "username" : "id"
+            }`,
+          },
+        ],
+      });
+    }
 
     if (password !== confirmPassword) {
       return res.status(200).json({
@@ -53,10 +77,15 @@ export default async function handler(
 
     await prisma.user.create({
       data: {
-        user_national_id: national_id,
+        user_national_id: Number(nationalId),
         user_password: hash,
         user_username: username,
       },
+    });
+
+    return res.status(200).json({
+      created: true,
+      errors: [],
     });
   } catch (error: any) {
     return res.status(500).json({

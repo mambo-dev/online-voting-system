@@ -9,6 +9,7 @@ import Success from "../components/utils/success";
 import Link from "next/link";
 import Input from "../components/utils/input";
 import Radio from "../components/utils/radio";
+import { Role } from "@prisma/client";
 
 type Props = {};
 
@@ -19,6 +20,8 @@ export default function Register({}: Props) {
   const initialState = {
     username: "",
     password: "",
+    confirmPassword: "",
+    nationalId: "",
   };
   const router = useRouter();
   const login = async (values: any) => {
@@ -30,33 +33,59 @@ export default function Register({}: Props) {
       });
 
       const {
-        user,
-        error: serverErrors,
+        created,
+        errors: serverErrors,
       }: {
-        user: any | null;
-        error: HandleError[] | [];
+        created: boolean;
+        errors: HandleError[] | [];
       } = await res.data;
 
-      if (serverErrors.length > 0 || !user) {
+      if (serverErrors.length > 0 || !created) {
         setLoading(false);
 
         setErrors([...serverErrors]);
         return;
       }
+
+      const login = await axios.post(`api/auth/login`, {
+        ...values,
+      });
+
+      const {
+        loggedin,
+        errors: loginErrors,
+      }: {
+        loggedin: {
+          user_id: number;
+          user_username: string;
+          user_national_id: number;
+          user_role: Role | null;
+        } | null;
+        errors: HandleError[] | [];
+      } = await login.data;
+
+      if (loginErrors.length > 0 || !loggedin) {
+        setLoading(false);
+
+        setErrors([...loginErrors]);
+        return;
+      }
+
+      setLoading(false);
       setSuccess(true);
       setErrors([]);
       setTimeout(() => {
         setSuccess(false);
       }, 1000);
+
       setTimeout(() => {
-        router.push("/admin/projects");
+        router.push("/dashboard");
       }, 2000);
-      setLoading(false);
     } catch (error: any) {
       console.log(error);
       setLoading(false);
-      error.response?.data.error && error.response.data.error.length > 0
-        ? setErrors([...error.response.data.error])
+      error.response?.data.errors && error.response.data.errors.length > 0
+        ? setErrors([...error.response.data.errors])
         : setErrors([
             {
               message: "something unexpected happened try again later",
@@ -80,18 +109,20 @@ export default function Register({}: Props) {
           className="flex z-10 md:-ml-16 mt-20 flex-col h-fit items-center justify-center gap-y-4 bg-white shadow rounded-lg py-10 px-8 w-full md:w-1/2"
           onSubmit={handleSubmit}
         >
-          <Input
-            value={values.username}
-            onChange={handleChange}
-            name="username"
-            label="username"
-          />
-          <Input
-            value={values.national_id}
-            onChange={handleChange}
-            name="national_id"
-            label="national_id"
-          />
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
+            <Input
+              value={values.username}
+              onChange={handleChange}
+              name="username"
+              label="username"
+            />
+            <Input
+              value={values.nationalId}
+              onChange={handleChange}
+              name="nationalId"
+              label="national id"
+            />
+          </div>
 
           <Input
             value={values.password}
@@ -100,10 +131,17 @@ export default function Register({}: Props) {
             label="password"
             type="password"
           />
+          <Input
+            value={values.confirmPassword}
+            onChange={handleChange}
+            name="confirmPassword"
+            label="confirm password"
+            type="password"
+          />
 
           <button
             type="submit"
-            className="mt-2 py-3 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 shadow text-white text-sm font-medium focus:ring-1 focus:border ring-amber-400 border-amber-300"
+            className="mt-2 py-3 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 focus:ring-2 focus:ring-amber-300 ring-offset-1 shadow text-white text-sm font-medium  focus:border  border-amber-300"
           >
             {loading ? "loading..." : "sign up"}
           </button>

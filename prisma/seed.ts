@@ -6,6 +6,24 @@ async function main() {
   const hash = await argon2.hash("1234", {
     hashLength: 10,
   });
+
+  await prisma.user.create({
+    data: {
+      user_password: hash,
+      user_national_id: 37451861,
+      user_username: "Mike",
+      Profile: {
+        create: {
+          profile_status: "active",
+          profile_description: "i am the admin of this app",
+          profile_email: "admin@email.com",
+          profile_full_name: "Michael Mambo Mwaura",
+          profile_phone_number: "0741882041",
+        },
+      },
+      user_role: "admin",
+    },
+  });
 }
 main()
   .then(async () => {
