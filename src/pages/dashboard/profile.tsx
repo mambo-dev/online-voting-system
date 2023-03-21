@@ -1,4 +1,4 @@
-import { Profile, Role, User } from "@prisma/client";
+import { Profile as ProfileType, Role, User } from "@prisma/client";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import React from "react";
@@ -7,16 +7,23 @@ import { DecodedToken } from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
 import Button from "../../components/utils/button";
 
-type Props = {};
+type Props = {
+  data: Data;
+};
 
-export default function Home({}: Props) {
-  return <div className="w-full "></div>;
+export default function Profile({ data }: Props) {
+  const { token, user } = data;
+  console.log(user);
+  if (!user?.Profile) {
+    return <div>create profile</div>;
+  }
+  return <div className="w-full ">view and update profile</div>;
 }
 
 type Data = {
   token: string;
   user: {
-    Profile: Profile | null;
+    Profile: ProfileType | null;
     user_national_id: number;
     user_id: number;
     user_role: Role | null;
@@ -74,6 +81,6 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
   };
 };
 
-Home.getLayout = function getLayout(page: React.ReactElement) {
+Profile.getLayout = function getLayout(page: React.ReactElement) {
   return <DashboardLayout>{page}</DashboardLayout>;
 };
