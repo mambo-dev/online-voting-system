@@ -60,12 +60,12 @@ const sideLinks = [
 export default function DashboardLayout({ children }: Props) {
   const [openNavigation, setOpenNavigation] = useState(false);
   return (
-    <main className="  w-full h-screen flex flex-col   items-center">
-      <div className="w-full h-full flex items-center ">
+    <main className="  w-full min-h-screen flex flex-col   items-center">
+      <div className="w-full h-screen flex items-center ">
         <nav
           className={` ${
             !openNavigation && "hidden"
-          } w-full  flex flex-col gap-y-3  px-2 top-0 bottom-0 left-0 right-0 shadow  absolute  md:relative md:w-[20%]  bg-slate-100 h-full `}
+          } w-full  flex flex-col gap-y-3  px-2 top-0 bottom-0 left-0 right-0 shadow  absolute  md:relative md:w-[20%]  bg-white h-full `}
         >
           <div className="flex items-center justify-center h-16 px-2">
             <h1 className="text-2xl tracking-widest font-bold bg-clip-text text-transparent bg-gradient-to-tr from-amber-500 to-amber-600">
@@ -110,7 +110,7 @@ export default function DashboardLayout({ children }: Props) {
           </ul>
         </nav>
         <div className=" w-full flex-1 h-full flex flex-col ">
-          <header className="h-20 w-full bg-transparent  flex items-center justify-between py-2 px-2">
+          <header className="h-24 w-full bg-white shadow  flex items-center justify-between py-2 px-2">
             <button
               onClick={() => {
                 setOpenNavigation(!openNavigation);

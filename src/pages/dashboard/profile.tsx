@@ -1,10 +1,12 @@
 import { Profile as ProfileType, Role, User } from "@prisma/client";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
+import Image from "next/image";
 import React from "react";
 import prisma from "../../../lib/prisma";
 import { DecodedToken } from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
+import CreateProfile from "../../components/profile/create-profile";
 import Button from "../../components/utils/button";
 
 type Props = {
@@ -13,9 +15,9 @@ type Props = {
 
 export default function Profile({ data }: Props) {
   const { token, user } = data;
-  console.log(user);
+
   if (!user?.Profile) {
-    return <div>create profile</div>;
+    return <CreateProfile token={token} />;
   }
   return <div className="w-full ">view and update profile</div>;
 }
