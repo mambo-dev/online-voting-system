@@ -7,10 +7,13 @@ export const useAuth = () => {
   const router = useRouter();
   const [imageUrl, setImageUrl] = useState<string | undefined>("");
   const logout = () => {
-    axios.get(`api/auth/logout`, {}).then((response) => {
-      console.log(response);
-      router.replace("/");
-    });
+    axios
+      .get(`/api/auth/logout`, {})
+      .then((response) => {
+        console.log(response);
+        router.replace("/");
+      })
+      .catch((error) => console.error(error));
   };
 
   useEffect(() => {
