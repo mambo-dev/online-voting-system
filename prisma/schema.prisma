@@ -80,11 +80,11 @@ model Vote {
 }
 
 model Election {
-  election_id         Int      @id @default(autoincrement())
+  election_id         Int            @id @default(autoincrement())
   election_name       String
   election_start_date DateTime
   election_end_date   DateTime
-  election_status     DateTime
+  election_status     ElectionStatus
   election_desription String
   Vote                Vote[]
   election_positions  String[]

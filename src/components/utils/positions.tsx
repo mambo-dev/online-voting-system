@@ -1,3 +1,4 @@
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import Input from "./input";
 
@@ -8,6 +9,11 @@ type Props = {
 
 export default function Positions({ positions, setPositions }: Props) {
   const [position, setPosition] = useState("");
+  const handleDelete = (index: number) => {
+    const newPositions = [...positions];
+    newPositions.splice(index, 1);
+    setPositions(newPositions);
+  };
   return (
     <div className=" py-2  ">
       <div className="flex items-center justify-between gap-x-2">
@@ -23,6 +29,7 @@ export default function Positions({ positions, setPositions }: Props) {
           type="button"
           onClick={() => {
             setPositions([...positions, position]);
+            setPosition("");
           }}
           className="bg-amber-100 w-10 h-10 rounded-full shadow inline-flex items-center justify-center"
         >
@@ -50,6 +57,13 @@ export default function Positions({ positions, setPositions }: Props) {
               className="rounded-lg shadow cursor-context-menu bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-2 w-full flex items-center justify-center"
             >
               {positions}
+              <button
+                type="button"
+                onClick={() => handleDelete(index)}
+                className="bg-amber-100 w-6 h-6 rounded-full shadow inline-flex items-center justify-center ml-auto"
+              >
+                <XMarkIcon className="w-3 h-3 text-amber-800" />
+              </button>
             </span>
           );
         })}

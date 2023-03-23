@@ -23,9 +23,9 @@ export default function NewElection({ token }: Props) {
   const router = useRouter();
   const initialState = {
     description: "",
-    end_date: "",
+
     name: "",
-    start_date: "",
+
     status: "",
   };
 
@@ -37,6 +37,9 @@ export default function NewElection({ token }: Props) {
         `/api/elections/create`,
         {
           ...values,
+          end_date: endDate,
+          start_date: startDate,
+          positions,
         },
         {
           headers: {

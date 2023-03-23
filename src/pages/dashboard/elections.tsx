@@ -167,7 +167,7 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
       data: {
         token: access_token,
         user: loggedInUser,
-        elections,
+        elections: JSON.parse(JSON.stringify(elections)),
       },
     },
   };

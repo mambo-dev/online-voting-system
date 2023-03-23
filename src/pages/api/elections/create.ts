@@ -70,15 +70,17 @@ export default async function handler(
       });
     }
 
-    const { description, end_date, name, start_date, status } = req.body;
+    const { description, end_date, name, start_date, status, positions } =
+      req.body;
 
     await prisma.election.create({
       data: {
         election_desription: description,
-        election_end_date: new Date(`${end_date}`),
+        election_end_date: end_date,
         election_name: name,
-        election_start_date: new Date(`${start_date}`),
+        election_start_date: start_date,
         election_status: status,
+        election_positions: [...positions],
       },
     });
 
