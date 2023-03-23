@@ -15,15 +15,16 @@ export default function UploadImage({
   return (
     <>
       <span className=" font-semibold"> {label} </span>
-      <div className="flex flex-col w-full h-64 mx-auto">
+      <div className="flex flex-col w-48 h-48 mx-auto mb-2">
         {previewUrl ? (
           <div className="mx-auto w-full h-full relative mt-1">
             <Image
               alt="file uploader preview"
               src={previewUrl}
               sizes=""
-              fill
-              className="rounded-lg "
+              width={400}
+              height={200}
+              className="rounded-lg h-full w-full "
             />
           </div>
         ) : (

@@ -2,6 +2,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { supabase } from "../../../lib/supabase";
 import { HandleError } from "../../backend-utils/types";
 import useForm from "../hooks/form";
 import Button from "../utils/button";
@@ -10,6 +11,7 @@ import Input from "../utils/input";
 import Success from "../utils/success";
 import TextArea from "../utils/textArea";
 import UploadImage from "../utils/upload-image";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {
   token: string;
@@ -69,15 +71,28 @@ export default function CreateProfile({ token }: Props) {
       return;
     }
     try {
-      const formUpload = new FormData();
-      Object.keys(values).map((value) => {
-        formUpload.append(value, values[value]);
-      });
-      formUpload.append("media", file);
+      const filename = `${uuidv4()}-${file.name}`;
+
+      const { data, error } = await supabase.storage
+        .from("upload-images")
+        .upload(filename, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        setLoading(false);
+        setErrors([{ message: error.message }]);
+        return;
+      }
+      const { path } = data;
 
       const createProfile = await axios.post(
         `/api/profile/create`,
-        formUpload,
+        {
+          ...values,
+          url: path,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -207,7 +222,7 @@ export default function CreateProfile({ token }: Props) {
           value={values.description}
         />
         <div className="w-32 ml-auto ">
-          <Button text="save profile" type="submit" />
+          <Button text="save profile" type="submit" loading={loading} />
         </div>
         <ErrorMessage errors={errors} />
         <Success message="succesfully created profile" success={success} />

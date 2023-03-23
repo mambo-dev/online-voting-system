@@ -10,14 +10,14 @@ export default function MenuOptions({ profileLink, navLinks }: any) {
     <div className="   text-right">
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button className="inline-flex w-12 h-12 justify-center rounded-full">
-            <span className="relative w-12 h-12 rounded-full bg-white  border border-slate-300">
+          <Menu.Button className="inline-flex w-14 h-14 justify-center rounded-full">
+            <span className="relative w-14 h-14 rounded-full bg-white  border border-slate-300">
               <Image
                 src="/images/avatar.png"
                 alt="profile image"
                 fill
                 sizes=""
-                className="rounded-full "
+                className="rounded-full w-full h-full "
               />
             </span>
           </Menu.Button>

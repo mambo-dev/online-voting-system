@@ -26,6 +26,7 @@ model Profile {
   profile_phone_number String
   profile_email        String     @unique
   profile_status       Status
+  profile_image      String
   profile_user         User       @relation(fields: [profile_user_id], onDelete: Cascade, references: [user_id])
   profile_user_id      Int        @unique
   Candidate            Candidate?
