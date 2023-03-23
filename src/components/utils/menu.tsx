@@ -5,7 +5,8 @@ import { Fragment } from "react";
 import { useAuth } from "../hooks/auth";
 
 export default function MenuOptions({ profileLink, navLinks }: any) {
-  const { logout } = useAuth();
+  const { logout, imageUrl } = useAuth();
+
   return (
     <div className="   text-right">
       <Menu as="div" className="relative inline-block text-left">
@@ -13,7 +14,11 @@ export default function MenuOptions({ profileLink, navLinks }: any) {
           <Menu.Button className="inline-flex w-14 h-14 justify-center rounded-full">
             <span className="relative w-14 h-14 rounded-full bg-white  border border-slate-300">
               <Image
-                src="/images/avatar.png"
+                src={
+                  imageUrl && imageUrl?.length > 0
+                    ? imageUrl
+                    : "/images/avatar.png"
+                }
                 alt="profile image"
                 fill
                 sizes=""

@@ -4,11 +4,18 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  title: string;
+  title?: string;
   children: any;
+  span?: string;
 };
 
-export default function SidePanel({ open, setOpen, title, children }: Props) {
+export default function SidePanel({
+  open,
+  setOpen,
+  title,
+  children,
+  span,
+}: Props) {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -36,7 +43,11 @@ export default function SidePanel({ open, setOpen, title, children }: Props) {
                 leaveFrom="translate-x-0"
                 leaveTo="translate-x-full"
               >
-                <Dialog.Panel className="pointer-events-auto relative w-screen max-w-lg">
+                <Dialog.Panel
+                  className={`pointer-events-auto relative w-screen ${
+                    span ? span : "max-w-lg"
+                  }`}
+                >
                   <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-500"
