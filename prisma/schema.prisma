@@ -87,6 +87,7 @@ model Election {
   election_status     DateTime
   election_desription String
   Vote                Vote[]
+  election_positions  String[]
 }
 
 enum ElectionStatus {

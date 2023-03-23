@@ -1,12 +1,14 @@
 import { Election, Profile, Role } from "@prisma/client";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
-import React from "react";
+import React, { useState } from "react";
 import prisma from "../../../lib/prisma";
 import { DecodedToken } from "../../backend-utils/types";
 import ElectionsComponent from "../../components/elections/elections";
+import NewElection from "../../components/elections/new-election";
 import DashboardLayout from "../../components/layout/dashboard";
 import Button from "../../components/utils/button";
+import SidePanel from "../../components/utils/sidepanel";
 
 type Props = {
   data: Data;
@@ -14,6 +16,7 @@ type Props = {
 
 export default function Elections({ data }: Props) {
   const { elections, token, user } = data;
+  const [openCreateElectionPanel, setOpenCreateElectionPanel] = useState(false);
 
   return (
     <div className="w-full min-h-screen">
@@ -43,6 +46,7 @@ export default function Elections({ data }: Props) {
               <div className="w-fit">
                 <Button
                   text="New Election"
+                  onClick={() => setOpenCreateElectionPanel(true)}
                   svg={
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -77,9 +81,10 @@ export default function Elections({ data }: Props) {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
+                  d="M15 13.5H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
                 />
               </svg>
+
               <h1 className="text-xl font-semibold">No Elections</h1>
               <p className="text-slate-700 font-medium">
                 No current elections being held
@@ -88,8 +93,17 @@ export default function Elections({ data }: Props) {
           </div>
         )
       ) : (
-        <ElectionsComponent />
+        <ElectionsComponent elections={elections} token={token} user={user} />
       )}
+
+      <SidePanel
+        open={openCreateElectionPanel}
+        setOpen={setOpenCreateElectionPanel}
+        span="max-w-3xl"
+        title="New Election"
+      >
+        <NewElection token={token} />
+      </SidePanel>
     </div>
   );
 }
