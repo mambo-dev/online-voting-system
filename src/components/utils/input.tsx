@@ -21,7 +21,7 @@ export default function Input({
     <div
       className={`flex flex-col gap-y-2 ${colSpan}  w-full text-slate-800 font-medium`}
     >
-      <label className=" font-semibold"> {label} </label>
+      <label className="font-semibold"> {label} </label>
       <input
         value={value}
         onChange={onChange}

@@ -9,6 +9,7 @@ import { supabase } from "../../../lib/supabase";
 import { DecodedToken } from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
 import AddUser from "../../components/users/add-user";
+import UpdateUser from "../../components/users/update-user";
 import Button from "../../components/utils/button";
 import SidePanel from "../../components/utils/sidepanel";
 import Table from "../../components/utils/table";
@@ -58,6 +59,7 @@ export default function Users({ data }: Props) {
       )}
       <Table headers={headers}>
         {users?.map((user, index) => {
+          console.log(!user.user_image.split("es/")[1]);
           return (
             <tr key={index} className="border-b">
               <th
@@ -67,7 +69,9 @@ export default function Users({ data }: Props) {
                 <div className="relative w-16 h-16 rounded-full">
                   <Image
                     src={
-                      user.user_image && user.user_image?.length > 0
+                      user.user_image &&
+                      user.user_image.length > 0 &&
+                      user.user_image.split("es/")[1] !== "undefined"
                         ? user.user_image
                         : "/images/avatar.png"
                     }
@@ -79,9 +83,9 @@ export default function Users({ data }: Props) {
                 </div>
               </th>
               <td className="py-4">{user.username}</td>
-              <td className="py-4">{user.email}</td>
-              <td className="py-4">{user.nationalId}</td>
-              <td className="py-4">{user.phone_number}</td>
+              <td className="py-4">{user.email || "not created"}</td>
+              <td className="py-4">{user.nationalId || "not created"}</td>
+              <td className="py-4">{user.phone_number || "not created"}</td>
               <td className="py-4 text-green-400 font-medium">
                 {user.role ? user.role : "unassigned"}
               </td>
@@ -118,6 +122,9 @@ export default function Users({ data }: Props) {
       </Table>
       <SidePanel open={openAddPanel} setOpen={setOpenAddPanel}>
         <AddUser token={token} />
+      </SidePanel>
+      <SidePanel open={openEditPanel} setOpen={setOpenEditPanel}>
+        <UpdateUser selectedUser={selectedUser} token={token} />
       </SidePanel>
     </div>
   );
@@ -209,9 +216,9 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
       username: user.user_username,
       role: user.user_role,
       nationalId: user.user_national_id,
-      email: user.Profile?.profile_email,
-      user_image: data.publicUrl,
-      phone_number: user.Profile?.profile_phone_number,
+      email: user.Profile?.profile_email || null,
+      user_image: data.publicUrl || null,
+      phone_number: user.Profile?.profile_phone_number || null,
     };
   });
 

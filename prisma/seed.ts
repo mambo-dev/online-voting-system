@@ -19,8 +19,7 @@ async function main() {
           profile_email: "admin@email.com",
           profile_full_name: "Michael Mambo Mwaura",
           profile_phone_number: "0741882041",
-          profile_image:
-            "https://images.unsplash.com/photo-1679419930927-4ea4f2ecc808?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
+          profile_image: "image.png",
         },
       },
       user_role: "admin",

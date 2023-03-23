@@ -1,8 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import jwtDecode from "jwt-decode";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../lib/prisma";
 import { handleAuthorization } from "../../../backend-utils/authorization";
-import { HandleError } from "../../../backend-utils/types";
+import { DecodedToken, HandleError } from "../../../backend-utils/types";
 import { handleBodyNotEmpty } from "../../../backend-utils/validation";
 import * as argon2 from "argon2";
 
@@ -18,7 +19,7 @@ export default async function handler(
   try {
     if (req.method !== "POST") {
       return res.status(403).json({
-        created: false,
+        created: null,
         errors: [
           {
             message: "invalid method",
@@ -26,50 +27,51 @@ export default async function handler(
         ],
       });
     }
+
+    if (!(await handleAuthorization(req))) {
+      return res.status(401).json({
+        created: null,
+        errors: [
+          {
+            message: "unauthorized access please login",
+          },
+        ],
+      });
+    }
+
     const noEmptyValues = handleBodyNotEmpty(req.body);
 
     if (noEmptyValues.length > 0) {
       return res.status(200).json({
-        created: false,
+        created: null,
         errors: [...noEmptyValues],
       });
     }
-    const { nationalId, username, password, confirmPassword } = req.body;
 
-    const usernameExists = await prisma.user.findUnique({
+    const token = req.headers.authorization?.split(" ")[1];
+
+    const decodedToken: DecodedToken = await jwtDecode(`${token}`);
+
+    const user = await prisma.user.findUnique({
       where: {
-        user_username: username,
-      },
-    });
-    const idExists = await prisma.user.findUnique({
-      where: {
-        user_national_id: Number(nationalId),
+        user_id: decodedToken.user_id,
       },
     });
 
-    if (usernameExists || idExists) {
-      return res.status(200).json({
-        created: false,
+    const isAdmin = user?.user_role === "admin";
+
+    if (!isAdmin) {
+      return res.status(401).json({
+        created: null,
         errors: [
           {
-            message: `already have an account under this ${
-              usernameExists ? "username" : "id"
-            }`,
+            message: "not authorized to perform this action",
           },
         ],
       });
     }
 
-    if (password !== confirmPassword) {
-      return res.status(200).json({
-        created: false,
-        errors: [
-          {
-            message: "passwords must match",
-          },
-        ],
-      });
-    }
+    const { username, password, nationalId, role } = req.body;
 
     const hash = await argon2.hash(password, {
       hashLength: 10,
@@ -80,7 +82,7 @@ export default async function handler(
         user_national_id: Number(nationalId),
         user_password: hash,
         user_username: username,
-        user_role: "user",
+        user_role: role,
       },
     });
 
@@ -90,7 +92,7 @@ export default async function handler(
     });
   } catch (error: any) {
     return res.status(500).json({
-      created: false,
+      created: null,
       errors: [
         {
           message: error.message,

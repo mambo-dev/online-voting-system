@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -10,24 +11,31 @@ import Success from "../utils/success";
 
 type Props = {
   token: string;
+  selectedUser: {
+    username: string;
+    role: Role | null;
+    nationalId: number;
+    email: string | undefined;
+    user_image: string;
+    phone_number: string | undefined;
+  } | null;
 };
 
-export default function AddUser({ token }: Props) {
+export default function UpdateUser({ token, selectedUser }: Props) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<HandleError[]>([]);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
   const initialState = {
-    username: "",
-    password: "",
-    nationalId: "",
-    role: "",
+    username: selectedUser?.username,
+    nationalId: selectedUser?.nationalId,
+    role: selectedUser?.role,
   };
 
-  const createUser = async () => {
+  const updateUser = async () => {
     try {
-      const res = await axios.post(
-        `/api/users/create`,
+      const res = await axios.put(
+        `/api/users/update`,
         {
           ...values,
         },
@@ -80,7 +88,7 @@ export default function AddUser({ token }: Props) {
 
   const { handleChange, handleSubmit, values } = useForm(
     initialState,
-    createUser
+    updateUser
   );
 
   return (
@@ -98,12 +106,7 @@ export default function AddUser({ token }: Props) {
           name="nationalId"
           label="national id"
         />
-        <Input
-          value={values.password}
-          onChange={handleChange}
-          name="password"
-          label="password"
-        />
+
         <div className="flex flex-col text-slate-800 py-1 gap-y-2 ">
           <p className="font-semibold">user&apos;s role</p>
           <div className="flex gap-x-2 mt-auto mb-auto">
