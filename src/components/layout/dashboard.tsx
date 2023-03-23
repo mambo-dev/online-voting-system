@@ -110,7 +110,7 @@ export default function DashboardLayout({ children }: Props) {
           </ul>
         </nav>
         <div className=" w-full flex-1 h-full flex flex-col ">
-          <header className="h-24 w-full bg-white shadow  flex items-center justify-between py-2 px-2">
+          <header className="h-20 w-full bg-white shadow  flex items-center justify-between py-2 px-2">
             <button
               onClick={() => {
                 setOpenNavigation(!openNavigation);

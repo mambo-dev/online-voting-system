@@ -11,6 +11,7 @@ export const useAuth = () => {
       .get(`/api/auth/logout`, {})
       .then((response) => {
         console.log(response);
+        Cookies.remove("profile");
         router.replace("/");
       })
       .catch((error) => console.error(error));

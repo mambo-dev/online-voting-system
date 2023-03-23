@@ -8,7 +8,9 @@ import prisma from "../../../lib/prisma";
 import { supabase } from "../../../lib/supabase";
 import { DecodedToken } from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
+import AddUser from "../../components/users/add-user";
 import Button from "../../components/utils/button";
+import SidePanel from "../../components/utils/sidepanel";
 import Table from "../../components/utils/table";
 
 type Props = {
@@ -17,6 +19,7 @@ type Props = {
 
 export default function Users({ data }: Props) {
   const { token, user, users } = data;
+  const [openAddPanel, setOpenAddPanel] = useState(false);
   const [openEditPanel, setOpenEditPanel] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{
@@ -38,26 +41,18 @@ export default function Users({ data }: Props) {
         "national id",
         "phone number",
         "role",
-        "more",
+
         "edit",
         "delete",
       ]
-    : [
-        "picture",
-        "username",
-        "email",
-        "national id",
-        "phone number",
-        "role",
-        "more",
-      ];
+    : ["picture", "username", "email", "national id", "phone number", "role"];
 
   return (
     <div className="w-full h-full flex flex-col gap-y-2 px-4 py-2">
       {isAdmin && (
         <div className="w-full flex  items-center justify-end">
           <div className="w-32">
-            <Button text="add user" />
+            <Button text="add user" onClick={() => setOpenAddPanel(true)} />
           </div>
         </div>
       )}
@@ -121,6 +116,9 @@ export default function Users({ data }: Props) {
           );
         })}
       </Table>
+      <SidePanel open={openAddPanel} setOpen={setOpenAddPanel}>
+        <AddUser token={token} />
+      </SidePanel>
     </div>
   );
 }
