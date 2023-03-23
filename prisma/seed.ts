@@ -12,6 +12,12 @@ async function main() {
       user_password: hash,
       user_national_id: 37451861,
       user_username: "Mike",
+      Admin: {
+        create: {
+          admin_full_name: "Michael Mambo Mwaura",
+          admin_main: true,
+        },
+      },
       Profile: {
         create: {
           profile_status: "active",

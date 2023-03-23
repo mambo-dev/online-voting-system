@@ -17,6 +17,7 @@ model User {
   user_password    String
   user_role        Role?
   Profile          Profile?
+  Admin            Admin?
 }
 
 model Profile {
@@ -61,8 +62,11 @@ model Voter {
 }
 
 model Admin {
-  admin_id        Int    @id @default(autoincrement())
+  admin_id        Int     @id @default(autoincrement())
   admin_full_name String
+  admin_main      Boolean @default(false)
+  admin_user      User    @relation(fields: [admin_user_id], onDelete: Cascade, references: [user_id])
+  admin_user_id   Int     @unique
 }
 
 model Vote {

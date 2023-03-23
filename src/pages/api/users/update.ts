@@ -56,19 +56,16 @@ export default async function handler(
       where: {
         user_id: decodedToken.user_id,
       },
+      include: {
+        Admin: true,
+      },
     });
 
     const { user_username } = req.query;
 
-    const findUserToUpdate = await prisma.user.findUnique({
-      where: {
-        user_username: String(user_username),
-      },
-    });
-
     const isAdmin = user?.user_role === "admin";
 
-    if (!isAdmin || findUserToUpdate?.user_id === user.user_id) {
+    if (!isAdmin) {
       return res.status(403).json({
         created: null,
         errors: [
@@ -79,6 +76,16 @@ export default async function handler(
       });
     }
 
+    if (user.Admin?.admin_main) {
+      return res.status(403).json({
+        created: null,
+        errors: [
+          {
+            message: "main admin canot update their profile",
+          },
+        ],
+      });
+    }
     const { username, nationalId, role } = req.body;
 
     await prisma.user.update({
