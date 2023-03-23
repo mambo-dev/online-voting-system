@@ -59,7 +59,6 @@ export default function Users({ data }: Props) {
       )}
       <Table headers={headers}>
         {users?.map((user, index) => {
-          console.log(!user.user_image.split("es/")[1]);
           return (
             <tr key={index} className="border-b">
               <th

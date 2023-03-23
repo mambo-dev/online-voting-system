@@ -33,9 +33,11 @@ export default function UpdateUser({ token, selectedUser }: Props) {
   };
 
   const updateUser = async () => {
+    setLoading(true);
+    setErrors([]);
     try {
       const res = await axios.put(
-        `/api/users/update`,
+        `/api/users/update?user_username=${selectedUser?.username}`,
         {
           ...values,
         },
@@ -130,9 +132,9 @@ export default function UpdateUser({ token, selectedUser }: Props) {
           type="submit"
           className="mt-2 py-3 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 focus:ring-2 focus:ring-amber-300 ring-offset-1 shadow text-white text-sm font-medium  focus:border  border-amber-300"
         >
-          {loading ? "loading..." : "add user"}
+          {loading ? "loading..." : "update user"}
         </button>
-        <Success message="successfully added user" success={success} />
+        <Success message="successfully updated user" success={success} />
         <ErrorMessage errors={errors} />
       </form>
     </div>
