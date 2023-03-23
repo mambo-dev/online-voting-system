@@ -52,8 +52,12 @@ export default function ViewProfile({ profile, token }: Props) {
           </div>
         </dl>
       </div>
-      <SidePanel open={openUpdatePanel} setOpen={setOpenUpdatePanel}>
-        <UpdateProfile profile={profile} token={token} />
+      <SidePanel
+        span="max-w-2xl"
+        open={openUpdatePanel}
+        setOpen={setOpenUpdatePanel}
+      >
+        <UpdateProfile currentProfile={profile} token={token} />
       </SidePanel>
     </div>
   );
