@@ -25,6 +25,8 @@ export default function AddUser({ token }: Props) {
   };
 
   const createUser = async () => {
+    setLoading(true);
+    setErrors([]);
     try {
       const res = await axios.post(
         `/api/users/create`,
@@ -52,7 +54,7 @@ export default function AddUser({ token }: Props) {
         setErrors([...serverErrors]);
         return;
       }
-
+      setLoading(false);
       setSuccess(true);
       setErrors([]);
       setTimeout(() => {

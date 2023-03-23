@@ -9,8 +9,10 @@ import { supabase } from "../../../lib/supabase";
 import { DecodedToken } from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
 import AddUser from "../../components/users/add-user";
+import DeleteUser from "../../components/users/delete-user";
 import UpdateUser from "../../components/users/update-user";
 import Button from "../../components/utils/button";
+import Modal from "../../components/utils/Modal";
 import SidePanel from "../../components/utils/sidepanel";
 import Table from "../../components/utils/table";
 
@@ -125,6 +127,13 @@ export default function Users({ data }: Props) {
       <SidePanel open={openEditPanel} setOpen={setOpenEditPanel}>
         <UpdateUser selectedUser={selectedUser} token={token} />
       </SidePanel>
+      <Modal isOpen={openDeleteModal} setIsOpen={setOpenDeleteModal}>
+        <DeleteUser
+          selectedUser={selectedUser}
+          setIsOpen={setOpenDeleteModal}
+          token={token}
+        />
+      </Modal>
     </div>
   );
 }

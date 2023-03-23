@@ -5,9 +5,10 @@ type Props = {
   children: any;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  span?: string;
 };
 
-export default function Modal({ isOpen, setIsOpen, children }: Props) {
+export default function Modal({ isOpen, setIsOpen, children, span }: Props) {
   function closeModal() {
     setIsOpen(false);
   }
@@ -38,7 +39,11 @@ export default function Modal({ isOpen, setIsOpen, children }: Props) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel
+                className={`w-full ${
+                  span ? span : "max-w-fit"
+                } transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all`}
+              >
                 {children}
               </Dialog.Panel>
             </Transition.Child>

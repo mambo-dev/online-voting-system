@@ -8,7 +8,7 @@ import { handleBodyNotEmpty } from "../../../backend-utils/validation";
 import * as argon2 from "argon2";
 
 type Data = {
-  created: boolean | null;
+  deleted: boolean | null;
   errors: HandleError[] | [];
 };
 
@@ -17,9 +17,9 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    if (req.method !== "PUT") {
+    if (req.method !== "DELETE") {
       return res.status(403).json({
-        created: null,
+        deleted: null,
         errors: [
           {
             message: "invalid method",
@@ -30,21 +30,12 @@ export default async function handler(
 
     if (!(await handleAuthorization(req))) {
       return res.status(401).json({
-        created: null,
+        deleted: null,
         errors: [
           {
             message: "unauthorized access please login",
           },
         ],
-      });
-    }
-
-    const noEmptyValues = handleBodyNotEmpty(req.body);
-
-    if (noEmptyValues.length > 0) {
-      return res.status(200).json({
-        created: null,
-        errors: [...noEmptyValues],
       });
     }
 
@@ -76,7 +67,7 @@ export default async function handler(
 
     if (!isAdmin) {
       return res.status(403).json({
-        created: null,
+        deleted: null,
         errors: [
           {
             message: "not authorized to perform this action",
@@ -90,34 +81,28 @@ export default async function handler(
       findUserToUpdate.Admin?.admin_main
     ) {
       return res.status(403).json({
-        created: null,
+        deleted: null,
         errors: [
           {
-            message: "main admin canot update their profile",
+            message: "main admin cannot delete their profile",
           },
         ],
       });
     }
-    const { username, nationalId, role } = req.body;
 
-    await prisma.user.update({
+    await prisma.user.delete({
       where: {
         user_username: String(user_username),
-      },
-      data: {
-        user_national_id: Number(nationalId),
-        user_username: username,
-        user_role: role,
       },
     });
 
     return res.status(200).json({
-      created: true,
+      deleted: true,
       errors: [],
     });
   } catch (error: any) {
     return res.status(500).json({
-      created: null,
+      deleted: null,
       errors: [
         {
           message: error.message,

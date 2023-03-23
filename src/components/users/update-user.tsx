@@ -62,7 +62,7 @@ export default function UpdateUser({ token, selectedUser }: Props) {
         setErrors([...serverErrors]);
         return;
       }
-
+      setLoading(false);
       setSuccess(true);
       setErrors([]);
       setTimeout(() => {

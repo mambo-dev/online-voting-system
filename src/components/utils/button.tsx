@@ -25,7 +25,7 @@ export default function Button({
     return (
       <button
         onClick={onClick}
-        className="py-2 px-1 w-full shadow rounded-md inline-flex items-center justify-center gap-x-2 bg-red-100 text-red-600 hover:bg-red-200 focus:bg-red-200  font-medium hover:ring-1 focus:ring-2  ring-red-400 ring-opacity-50 focus:border focus:border-red-500  "
+        className="py-2 px-1 w-full  inline-flex items-center justify-center gap-x-2 text-red-500 focus:text-red-700  "
         type={type}
       >
         {svg}
@@ -37,7 +37,7 @@ export default function Button({
     return (
       <button
         onClick={onClick}
-        className="py-2 px-1 w-full shadow rounded-md inline-flex items-center justify-center gap-x-2 bg-gray-100 text-slate-600 hover:bg-gray-200 focus:bg-gray-200  font-medium hover:ring-1 focus:ring-2  ring-gray-400 ring-opacity-50 focus:border focus:border-gray-500  "
+        className="py-2 px-1 w-full  inline-flex items-center justify-center gap-x-2 bg-gray-100 text-slate-600 hover:bg-gray-200 focus:bg-gray-200  font-medium hover:ring-1 focus:ring-2  ring-gray-400 ring-opacity-50 focus:border focus:border-gray-500  "
         type={type}
       >
         {svg}
@@ -50,7 +50,7 @@ export default function Button({
     return (
       <button
         onClick={onClick}
-        className="py-2 px-1 w-full shadow rounded-md inline-flex items-center justify-center gap-x-2 bg-blue-100 text-blue-600 hover:bg-blue-200 focus:bg-blue-200  font-medium hover:ring-1 focus:ring-2  ring-blue-400 ring-opacity-50 focus:border focus:border-blue-500  "
+        className="py-2 px-1 w-full  inline-flex items-center justify-center gap-x-2  text-blue-600 focus:text-blue-800 "
         type={type}
       >
         {svg}
