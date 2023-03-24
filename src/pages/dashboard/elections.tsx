@@ -1,4 +1,6 @@
 import { Election, Profile, Role } from "@prisma/client";
+import axios from "axios";
+import { isAfter, sub } from "date-fns";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import React, { useState } from "react";
@@ -9,6 +11,7 @@ import NewElection from "../../components/elections/new-election";
 import DashboardLayout from "../../components/layout/dashboard";
 import Button from "../../components/utils/button";
 import SidePanel from "../../components/utils/sidepanel";
+import { ElectionCandidatesVoters } from "./elections/[id]";
 
 type Props = {
   data: Data;
@@ -18,6 +21,31 @@ export default function Elections({ data }: Props) {
   const { elections, token, user } = data;
   const [openCreateElectionPanel, setOpenCreateElectionPanel] = useState(false);
   const isAdmin = user?.user_role === "admin";
+  const isElectionClosed = (election: Election) => {
+    if (!election) return false;
+    return new Date() >= election?.election_end_date;
+  };
+
+  const closeElection = async (election: Election) => {
+    try {
+      await axios.get(
+        `/api/elections/close-election?election_id=${election?.election_id}`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  setInterval(() => {
+    elections.forEach((election) => {
+      if (election.election_status === "open" && isElectionClosed(election)) {
+        //@ts-ignore
+        const timeRemaining = Math.abs(election.election_end_date - new Date());
+
+        setTimeout(() => closeElection(election), timeRemaining);
+      }
+    });
+  }, 10000);
   return (
     <div className="w-full min-h-screen">
       {elections.length <= 0 ? (
@@ -93,7 +121,7 @@ export default function Elections({ data }: Props) {
           </div>
         )
       ) : (
-        <div className="w-full h-full flex flex-col px-4">
+        <div className="w-full h-full flex flex-col px-4 gap-y-4">
           {isAdmin && (
             <div className="ml-auto w-fit">
               <Button
@@ -132,6 +160,11 @@ export default function Elections({ data }: Props) {
       </SidePanel>
     </div>
   );
+}
+
+export function truncate(str: string, maxLength: number) {
+  if (str.length <= maxLength) return str;
+  return str.substring(0, maxLength - 3) + "...";
 }
 
 type Data = {

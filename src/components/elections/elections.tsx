@@ -3,6 +3,7 @@ import { Election, Profile, Role } from "@prisma/client";
 import { format } from "date-fns";
 import Link from "next/link";
 import React from "react";
+import { truncate } from "../../pages/dashboard/elections";
 import Button from "../utils/button";
 
 type Props = {
@@ -19,7 +20,7 @@ type Props = {
 
 export default function ElectionsComponent({ elections, user, token }: Props) {
   return (
-    <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
+    <div className="w-full  grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-y-4  md:gap-x-4 ">
       {elections.map((election) => {
         return <Election key={election.election_id} election={election} />;
       })}
@@ -33,7 +34,7 @@ type ElectionProps = {
 
 function Election({ election }: ElectionProps) {
   return (
-    <div className="w-full h-fit bg-white shadow rounded-lg border border-slate-300 py-2 px-2">
+    <div className="w-full h-fit  bg-white shadow rounded-lg border border-slate-300 py-2 px-2">
       <div className="w-full flex items-center justify-between ">
         <h1 className="font-bold text-slate-800 text-lg">
           {election.election_name}
@@ -65,9 +66,11 @@ function Election({ election }: ElectionProps) {
         </span>
       </div>
       <div className="flex py-2 font-medium  ">
-        <p className="first-letter:uppercase">{election.election_desription}</p>
+        <p className="first-letter:uppercase">
+          {truncate(election.election_desription, 65)}
+        </p>
       </div>
-      <div className="ml-auto w-fit">
+      <div className="ml-auto mt-auto w-fit">
         <Link href={`/dashboard/elections/${election.election_id}`}>
           <Button
             expand
