@@ -33,12 +33,16 @@ export default function UpdateElections({ election, token }: Props) {
     hasPositions ? election.election_positions : []
   );
   const router = useRouter();
+
   const initialState = {
     description: election?.election_desription,
     name: election?.election_name,
     status: election?.election_status,
   };
-  const handleUpdate = () => {};
+
+  const handleUpdate = async (values: any) => {
+    setLoading(true);
+  };
 
   const { handleChange, handleSubmit, values } = useForm(
     initialState,
