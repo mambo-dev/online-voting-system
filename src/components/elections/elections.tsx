@@ -1,9 +1,10 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
-import { Election, Profile, Role } from "@prisma/client";
+import { Profile, Role } from "@prisma/client";
 import { format } from "date-fns";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { truncate } from "../../pages/dashboard/elections";
+import { ElectionsWithUsers, truncate } from "../../pages/dashboard/elections";
 import Button from "../utils/button";
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
     user_role: Role | null;
     user_username: string;
   } | null;
-  elections: Election[];
+  elections: ElectionsWithUsers[];
 };
 
 export default function ElectionsComponent({ elections, user, token }: Props) {
@@ -29,10 +30,18 @@ export default function ElectionsComponent({ elections, user, token }: Props) {
 }
 
 type ElectionProps = {
-  election: Election;
+  election: ElectionsWithUsers;
 };
 
 function Election({ election }: ElectionProps) {
+  const remainingCandidates = election.Candidate.slice(
+    3,
+    election.Candidate.length - 1
+  ).length;
+  const remainingVoters = election.Voter.slice(
+    3,
+    election.Voter.length - 1
+  ).length;
   return (
     <div className="w-full h-fit  bg-white shadow rounded-lg border border-slate-300 py-2 px-2">
       <div className="w-full flex items-center justify-between ">
@@ -70,7 +79,75 @@ function Election({ election }: ElectionProps) {
           {truncate(election.election_desription, 65)}
         </p>
       </div>
-      <div className="ml-auto mt-auto w-fit">
+      <div className="flex items-center justify-between py-2">
+        <div className="flex flex-col gap-y-1">
+          <label className="text-slate-800 font-semibold">candidates</label>
+          <div className="flex -space-x-1 overflow-hidden">
+            {election.Candidate &&
+              election.Candidate.slice(0, 3).map((candidate) => {
+                return (
+                  <div
+                    key={candidate.candidate_id}
+                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white "
+                  >
+                    <Image
+                      src={
+                        candidate.candidate_profile.profile_image &&
+                        candidate.candidate_profile.profile_image.length > 0 &&
+                        candidate.candidate_profile.profile_image.split(
+                          "es/"
+                        )[1] !== "undefined"
+                          ? candidate.candidate_profile.profile_image
+                          : "/images/avatar.png"
+                      }
+                      alt="profile image"
+                      width={50}
+                      height={50}
+                      className="rounded-full w-full h-full"
+                    />
+                  </div>
+                );
+              })}
+            <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+              +{remainingCandidates}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-y-1">
+          <label className="text-slate-800 font-semibold">voters</label>
+          <div className="flex -space-x-1 overflow-hidden">
+            {election.Voter &&
+              election.Voter.slice(0, 3).map((voter) => {
+                return (
+                  <div
+                    key={voter.voter_id}
+                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white "
+                  >
+                    <Image
+                      src={
+                        voter.voter_profile.profile_image &&
+                        voter.voter_profile.profile_image.length > 0 &&
+                        voter.voter_profile.profile_image.split("es/")[1] !==
+                          "undefined"
+                          ? voter.voter_profile.profile_image
+                          : "/images/avatar.png"
+                      }
+                      alt="profile image"
+                      width={50}
+                      height={50}
+                      className="rounded-full w-full h-full"
+                    />
+                  </div>
+                );
+              })}
+            <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+              +{remainingVoters}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="ml-auto mt-2 w-fit ">
         <Link href={`/dashboard/elections/${election.election_id}`}>
           <Button
             expand

@@ -9,6 +9,7 @@ type Props = {
   error?: boolean;
   edit?: boolean;
   expand?: boolean;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -20,6 +21,7 @@ export default function Button({
   error,
   edit,
   expand,
+  disabled,
 }: Props) {
   if (error) {
     return (
@@ -62,7 +64,8 @@ export default function Button({
     <button
       onClick={onClick}
       type={type}
-      className="mt-2 py-3 px-3 inline-flex items-center justify-center gap-x-2 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 shadow text-white text-sm font-medium focus:ring-1 focus:border ring-amber-400 border-amber-300"
+      disabled={disabled}
+      className="mt-2 disabled:bg-opacity-70  py-3 px-3 inline-flex items-center justify-center gap-x-2 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 shadow text-white text-sm font-medium focus:ring-1 focus:border ring-amber-400 border-amber-300"
     >
       {svg}
       {loading ? <p className="italic">loading... </p> : text}

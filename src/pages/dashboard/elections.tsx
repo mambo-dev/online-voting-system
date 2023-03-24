@@ -1,10 +1,18 @@
-import { Election, Profile, Role } from "@prisma/client";
+import {
+  Candidate,
+  Election,
+  Profile,
+  Role,
+  Vote,
+  Voter,
+} from "@prisma/client";
 import axios from "axios";
 import { isAfter, sub } from "date-fns";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import React, { useState } from "react";
 import prisma from "../../../lib/prisma";
+import { supabase } from "../../../lib/supabase";
 import { DecodedToken } from "../../backend-utils/types";
 import ElectionsComponent from "../../components/elections/elections";
 import NewElection from "../../components/elections/new-election";
@@ -121,7 +129,7 @@ export default function Elections({ data }: Props) {
           </div>
         )
       ) : (
-        <div className="w-full h-full flex flex-col px-4 gap-y-4">
+        <div className="w-full h-full flex flex-col px-4 gap-y-4 py-5">
           {isAdmin && (
             <div className="ml-auto w-fit">
               <Button
@@ -176,7 +184,17 @@ type Data = {
     user_role: Role | null;
     user_username: string;
   } | null;
-  elections: Election[];
+  elections: ElectionsWithUsers[];
+};
+
+export type ElectionsWithUsers = Election & {
+  Vote: Vote[];
+  Candidate: (Candidate & {
+    candidate_profile: Profile;
+  })[];
+  Voter: (Voter & {
+    voter_profile: Profile;
+  })[];
 };
 //@ts-ignore
 export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
@@ -219,14 +237,58 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     },
   });
 
-  const elections = await prisma.election.findMany({});
+  const elections = await prisma.election.findMany({
+    include: {
+      Candidate: {
+        include: {
+          candidate_profile: true,
+        },
+      },
+      Vote: true,
+      Voter: {
+        include: {
+          voter_profile: true,
+        },
+      },
+    },
+  });
+
+  const editedElections = elections.map((election) => {
+    return {
+      ...election,
+      Candidate: election.Candidate.map((candidate) => {
+        const { data } = supabase.storage
+          .from("upload-images")
+          .getPublicUrl(`${candidate.candidate_profile.profile_image}`);
+        return {
+          ...candidate,
+          candidate_profile: {
+            ...candidate.candidate_profile,
+            profile_image: data.publicUrl,
+          },
+        };
+      }),
+      Voter: election.Voter.map((voter) => {
+        const { data } = supabase.storage
+          .from("upload-images")
+          .getPublicUrl(`${voter.voter_profile.profile_image}`);
+        return {
+          ...voter,
+          voter_profile: {
+            ...voter.voter_profile,
+            profile_image: data.publicUrl,
+          },
+        };
+      }),
+    };
+  });
 
   return {
     props: {
       data: {
         token: access_token,
         user: loggedInUser,
-        elections: JSON.parse(JSON.stringify(elections)),
+        elections: JSON.parse(JSON.stringify(editedElections)),
       },
     },
   };

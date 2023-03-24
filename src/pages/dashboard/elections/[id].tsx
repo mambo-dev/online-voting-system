@@ -108,12 +108,19 @@ type Data = {
 
 export type ElectionCandidatesVoters =
   | (Election & {
+      Candidate: (Candidate & {
+        candidate_profile: Profile;
+      })[];
+      Voter: (Voter & {
+        voter_profile: Profile;
+      })[];
       Vote: (Vote & {
         vote_candidate: Candidate;
         vote_voter: Voter;
       })[];
     })
   | null;
+
 //@ts-ignore
 export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
   context
@@ -167,6 +174,12 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
           vote_candidate: true,
           vote_voter: true,
         },
+      },
+      Candidate: {
+        include: { candidate_profile: true },
+      },
+      Voter: {
+        include: { voter_profile: true },
       },
     },
   });

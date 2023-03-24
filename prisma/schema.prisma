@@ -45,20 +45,23 @@ enum Role {
 }
 
 model Candidate {
-  candidate_id                Int    @id @default(autoincrement())
+  candidate_id                Int      @id @default(autoincrement())
   candidate_vying_description String
   candidate_vying_position    String
-
-  candidate_profile    Profile @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
-  candidate_profile_id Int     @unique
-  Vote                 Vote[]
+  candidate_election          Election @relation(fields: [candidate_election_id], onDelete: Cascade, references: [election_id])
+  candidate_election_id       Int
+  candidate_profile           Profile  @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
+  candidate_profile_id        Int      @unique
+  Vote                        Vote[]
 }
 
 model Voter {
-  voter_id         Int     @id @default(autoincrement())
-  voter_profile    Profile @relation(fields: [voter_profile_id], onDelete: Cascade, references: [profile_id])
-  voter_profile_id Int     @unique
-  Vote             Vote[]
+  voter_id          Int      @id @default(autoincrement())
+  voter_profile     Profile  @relation(fields: [voter_profile_id], onDelete: Cascade, references: [profile_id])
+  voter_profile_id  Int      @unique
+  voter_election    Election @relation(fields: [voter_election_id], onDelete: Cascade, references: [election_id])
+  voter_election_id Int
+  Vote              Vote[]
 }
 
 model Admin {
@@ -89,6 +92,8 @@ model Election {
   Vote                Vote[]
   election_positions  String[]
   election_created_at DateTime       @default(now())
+  Voter               Voter[]
+  Candidate           Candidate[]
 }
 
 enum ElectionStatus {

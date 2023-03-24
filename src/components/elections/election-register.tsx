@@ -1,13 +1,17 @@
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Profile, Role } from "@prisma/client";
 import axios from "axios";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { HandleError } from "../../backend-utils/types";
 import { ElectionCandidatesVoters } from "../../pages/dashboard/elections/[id]";
 import Button from "../utils/button";
+import ErrorMessage from "../utils/error";
 import Input from "../utils/input";
 import Modal from "../utils/Modal";
 import Radio from "../utils/radio";
+import Success from "../utils/success";
 import TextArea from "../utils/textArea";
 
 type Props = {
@@ -76,23 +80,100 @@ function Register({ user, election, token }: RegisterProps) {
   const [voterSuccess, setVoterSuccess] = useState(false);
   const [position, setPosition] = useState("");
   const [description, setDescription] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async () => {
     setLoading(true);
+    setErrors([]);
+
     try {
       if (registerAs === "voter") {
         const res = await axios.post(
-          `api/elections/register?register_as=voter&&election_id=${election?.election_id}&&profile_id=${user?.Profile?.profile_id}`
+          `/api/elections/register?register_as=voter&&election_id=${election?.election_id}&&profile_id=${user?.Profile?.profile_id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+
+        const {
+          registered,
+          errors: serverErrors,
+        }: {
+          registered: boolean | null;
+          errors: HandleError[] | [];
+        } = await res.data;
+
+        if (serverErrors.length > 0 || !registered) {
+          setLoading(false);
+
+          setErrors([...serverErrors]);
+          return;
+        }
+        setLoading(false);
         setVoterSuccess(true);
+        setErrors([]);
+        setTimeout(() => {
+          setVoterSuccess(false);
+        }, 1000);
+        setTimeout(() => {
+          router.reload();
+        }, 2000);
         return;
       }
       const res = await axios.post(
-        `api/elections/register?register_as=candidate&&election_id=${election?.election_id}&&profile_id=${user?.Profile?.profile_id}`
+        `/api/elections/register?register_as=candidate&&election_id=${election?.election_id}&&profile_id=${user?.Profile?.profile_id}`,
+        {
+          position,
+          description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+      const {
+        registered,
+        errors: serverErrors,
+      }: {
+        registered: boolean | null;
+        errors: HandleError[] | [];
+      } = await res.data;
+
+      if (serverErrors.length > 0 || !registered) {
+        setLoading(false);
+
+        setErrors([...serverErrors]);
+        return;
+      }
+      setLoading(false);
       setCandidateSuccess(true);
-    } catch (error) {
+      setErrors([]);
+      setTimeout(() => {
+        setCandidateSuccess(false);
+      }, 1000);
+      setTimeout(() => {
+        router.reload();
+      }, 2000);
+    } catch (error: any) {
+      setCandidateSuccess(false);
+      setVoterSuccess(false);
       console.log(error);
+      setLoading(false);
+      error.response?.data.errors && error.response.data.errors.length > 0
+        ? setErrors([...error.response.data.errors])
+        : setErrors([
+            {
+              message: "something unexpected happened try again later",
+            },
+          ]);
+      setLoading(false);
+      setTimeout(() => {
+        setErrors([]);
+      }, 2000);
     }
   };
 
@@ -135,9 +216,25 @@ function Register({ user, election, token }: RegisterProps) {
         />
       )}
       {registerAs === "voter" && <VoterForm />}
+      {!user?.Profile && (
+        <p>
+          note! a profile is required to register for an election{" "}
+          <Link className="text-blue-500 hover:underline" href="/profile">
+            create
+          </Link>
+        </p>
+      )}
       <div className="ml-auto w-fit mt-2">
-        <Button text="submit choice" onClick={handleSubmit} />
+        <Button
+          disabled={!user?.Profile}
+          text="submit choice"
+          onClick={handleSubmit}
+          loading={loading}
+        />
       </div>
+      <ErrorMessage errors={errors} />
+      <Success message="thank you for registering" success={voterSuccess} />
+      <Success message="thank you for registering" success={candidateSuccess} />
     </div>
   );
 }
