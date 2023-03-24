@@ -10,7 +10,8 @@ type Props = {
 export default function Positions({ positions, setPositions }: Props) {
   const [position, setPosition] = useState("");
   const handleDelete = (index: number) => {
-    const newPositions = [...positions];
+    let newPositions = [...positions];
+
     newPositions.splice(index, 1);
     setPositions(newPositions);
   };

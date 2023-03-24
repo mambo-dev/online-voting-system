@@ -72,6 +72,17 @@ export default async function handler(
 
     const { election_id } = req.query;
 
+    if (!election_id) {
+      return res.status(404).json({
+        updated: null,
+        errors: [
+          {
+            message: "invalid election id",
+          },
+        ],
+      });
+    }
+
     const findElection = await prisma.election.findUnique({
       where: {
         election_id: Number(election_id),
@@ -124,10 +135,7 @@ export default async function handler(
         election_name: name,
         election_start_date: start_date,
         election_status: status,
-        election_positions: [
-          ...findElection.election_positions,
-          ...positionsToAdd,
-        ],
+        election_positions: [...positionsToAdd],
       },
     });
 

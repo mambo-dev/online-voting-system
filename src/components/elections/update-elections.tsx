@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { HandleError } from "../../backend-utils/types";
@@ -42,6 +43,61 @@ export default function UpdateElections({ election, token }: Props) {
 
   const handleUpdate = async (values: any) => {
     setLoading(true);
+    setErrors([]);
+    try {
+      const res = await axios.put(
+        `/api/elections/update?election_id=${election?.election_id}`,
+        {
+          ...values,
+          end_date: endDate,
+          start_date: startDate,
+          positions,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const {
+        updated,
+        errors: serverErrors,
+      }: {
+        updated: boolean | null;
+        errors: HandleError[] | [];
+      } = await res.data;
+
+      if (serverErrors.length > 0 || !updated) {
+        setLoading(false);
+
+        setErrors([...serverErrors]);
+        return;
+      }
+      setLoading(false);
+      setSuccess(true);
+      setErrors([]);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 1000);
+      setTimeout(() => {
+        router.reload();
+      }, 2000);
+    } catch (error: any) {
+      console.log(error);
+      setLoading(false);
+      error.response?.data.errors && error.response.data.errors.length > 0
+        ? setErrors([...error.response.data.errors])
+        : setErrors([
+            {
+              message: "something unexpected happened try again later",
+            },
+          ]);
+      setLoading(false);
+      setTimeout(() => {
+        setErrors([]);
+      }, 2000);
+    }
   };
 
   const { handleChange, handleSubmit, values } = useForm(
@@ -105,10 +161,10 @@ export default function UpdateElections({ election, token }: Props) {
         type="submit"
         className="mt-2 py-3 w-full rounded-lg  bg-gradient-to-tr from-amber-600 to-amber-500 focus:ring-2 focus:ring-amber-300 ring-offset-1 shadow text-white text-sm font-medium  focus:border  border-amber-300"
       >
-        {loading ? "loading..." : "create election"}
+        {loading ? "loading..." : "update election"}
       </button>
       <ErrorMessage errors={errors} />
-      <Success message="succesfully created election" success={success} />
+      <Success message="succesfully updated election" success={success} />
     </form>
   );
 }
