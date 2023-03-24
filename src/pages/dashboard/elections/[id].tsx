@@ -12,6 +12,9 @@ import { GetServerSideProps } from "next";
 import React, { useState } from "react";
 import prisma from "../../../../lib/prisma";
 import { DecodedToken } from "../../../backend-utils/types";
+import AdminElectionActions from "../../../components/elections/admin-actions";
+import Candidates from "../../../components/elections/candidates";
+import SearchCandidate from "../../../components/elections/search-cadidate";
 import DashboardLayout from "../../../components/layout/dashboard";
 
 type Props = {
@@ -24,9 +27,9 @@ export default function ElectionPage({ data }: Props) {
   const [openRegister, setOpenRegister] = useState(false);
   const isAdmin = user?.user_role === "admin";
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-6 px-28 gap-2 py-10">
+    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-6 px-20 gap-2 py-10">
       <div className="col-span-2 grid grid-cols-1 gap-2 ">
-        <div className="bg-gradient-to-tr from-amber-400 to-amber-500 h-48 w-full rounded-lg shadow p-3 flex flex-col">
+        <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-48 w-full rounded-lg shadow p-3 flex flex-col">
           <div className="w-full flex items-center justify-between ">
             <h1 className="font-bold text-slate-800 text-lg">
               {election?.election_name}
@@ -69,7 +72,7 @@ export default function ElectionPage({ data }: Props) {
             </p>
           </div>
         </div>
-        <div className=" bg-white h-fit w-full rounded-lg shadow p-3 flex flex-col gap-y-2">
+        <div className=" bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col gap-y-2">
           <p className="font-semibold text-sm">
             To participate in this elections start by registering.
           </p>
@@ -91,15 +94,27 @@ export default function ElectionPage({ data }: Props) {
           <div className="w-fit mt-auto ml-auto py-2 flex ">
             <button
               onClick={() => setOpenRegister(true)}
-              className="py-2 px-4 rounded-lg bg-emerald-500 text-white font-semibold "
+              className="py-2 px-4 rounded-lg bg-emerald-500 text-white font-semibold focus:ring-2 ring-offset-1 ring-emerald-300 border border-emerald-50"
             >
               register
             </button>
           </div>
         </div>
-        <div className="bg-white h-48 w-full rounded-lg shadow p-3 flex flex-col"></div>
+        {isAdmin && (
+          <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
+            <p>admin can delete or edit the elections</p>
+            <AdminElectionActions
+              user={user}
+              token={token}
+              election={election}
+            />
+          </div>
+        )}
       </div>
-      <div className="col-span-4">this other side</div>
+      <div className="col-span-4 flex flex-col gap-y-2 items-center">
+        <SearchCandidate election={election} token={token} />
+        <Candidates election={election} token={token} />
+      </div>
     </div>
   );
 }

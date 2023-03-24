@@ -1,7 +1,7 @@
-import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { HandleError } from "../../backend-utils/types";
+import { ElectionCandidatesVoters } from "../../pages/dashboard/elections/[id]";
 import useForm from "../hooks/form";
 import DatePickerComponent from "../utils/date-picker";
 import ErrorMessage from "../utils/error";
@@ -12,89 +12,38 @@ import Success from "../utils/success";
 import TextArea from "../utils/textArea";
 
 type Props = {
+  election: ElectionCandidatesVoters | null;
   token: string;
 };
 
-export default function NewElection({ token }: Props) {
+export default function UpdateElections({ election, token }: Props) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<HandleError[]>([]);
   const [success, setSuccess] = useState(false);
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(new Date());
-  const [positions, setPositions] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(
+    new Date(`${election?.election_start_date}`)
+  );
+  const [endDate, setEndDate] = useState<Date | null>(
+    new Date(`${election?.election_end_date}`)
+  );
+
+  const hasPositions =
+    election?.election_positions && election?.election_positions.length > 0;
+  const [positions, setPositions] = useState<string[]>(
+    hasPositions ? election.election_positions : []
+  );
   const router = useRouter();
   const initialState = {
-    description: "",
-
-    name: "",
-
-    status: "",
+    description: election?.election_desription,
+    name: election?.election_name,
+    status: election?.election_status,
   };
-
-  const createElection = async (values: any) => {
-    setLoading(true);
-    setErrors([]);
-    try {
-      const res = await axios.post(
-        `/api/elections/create`,
-        {
-          ...values,
-          end_date: endDate,
-          start_date: startDate,
-          positions,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const {
-        created,
-        errors: serverErrors,
-      }: {
-        created: boolean | null;
-        errors: HandleError[] | [];
-      } = await res.data;
-
-      if (serverErrors.length > 0 || !created) {
-        setLoading(false);
-
-        setErrors([...serverErrors]);
-        return;
-      }
-      setLoading(false);
-      setSuccess(true);
-      setErrors([]);
-      setTimeout(() => {
-        setSuccess(false);
-      }, 1000);
-      setTimeout(() => {
-        router.reload();
-      }, 2000);
-    } catch (error: any) {
-      console.log(error);
-      setLoading(false);
-      error.response?.data.errors && error.response.data.errors.length > 0
-        ? setErrors([...error.response.data.errors])
-        : setErrors([
-            {
-              message: "something unexpected happened try again later",
-            },
-          ]);
-      setLoading(false);
-      setTimeout(() => {
-        setErrors([]);
-      }, 2000);
-    }
-  };
+  const handleUpdate = () => {};
 
   const { handleChange, handleSubmit, values } = useForm(
     initialState,
-    createElection
+    handleUpdate
   );
-
   return (
     <form onSubmit={handleSubmit} className="px-1 flex flex-col gap-y-2 py-10">
       <Input
