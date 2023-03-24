@@ -17,7 +17,7 @@ type Props = {
 export default function Elections({ data }: Props) {
   const { elections, token, user } = data;
   const [openCreateElectionPanel, setOpenCreateElectionPanel] = useState(false);
-
+  const isAdmin = user?.user_role === "admin";
   return (
     <div className="w-full min-h-screen">
       {elections.length <= 0 ? (
@@ -93,7 +93,33 @@ export default function Elections({ data }: Props) {
           </div>
         )
       ) : (
-        <ElectionsComponent elections={elections} token={token} user={user} />
+        <div className="w-full h-full flex flex-col px-4">
+          {isAdmin && (
+            <div className="ml-auto w-fit">
+              <Button
+                text="new election"
+                onClick={() => setOpenCreateElectionPanel(true)}
+                svg={
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4.5v15m7.5-7.5h-15"
+                    />
+                  </svg>
+                }
+              />
+            </div>
+          )}
+          <ElectionsComponent elections={elections} token={token} user={user} />
+        </div>
       )}
 
       <SidePanel

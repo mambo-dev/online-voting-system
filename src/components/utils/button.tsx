@@ -37,7 +37,7 @@ export default function Button({
     return (
       <button
         onClick={onClick}
-        className="py-2 px-1 w-full  inline-flex items-center justify-center gap-x-2 bg-gray-100 text-slate-600 hover:bg-gray-200 focus:bg-gray-200  font-medium hover:ring-1 focus:ring-2  ring-gray-400 ring-opacity-50 focus:border focus:border-gray-500  "
+        className="py-2 px-3 rounded shadow-lg w-full  inline-flex items-center justify-center gap-x-2 bg-slate-100 text-slate-600 hover:bg-slate-200 focus:bg-slate-300  font-medium hover:ring-1 focus:ring-2  ring-gray-400 ring-opacity-50   "
         type={type}
       >
         {svg}
