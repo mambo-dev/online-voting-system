@@ -102,7 +102,7 @@ export default async function handler(
 
     const { description, end_date, name, start_date, status, positions } =
       req.body;
-
+    console.log(positions);
     const positionsToAdd = positions.filter(
       (position: string) => !findElection.election_positions.includes(position)
     );
@@ -125,6 +125,8 @@ export default async function handler(
       });
     }
 
+    console.log(positionsToAdd);
+
     await prisma.election.update({
       where: {
         election_id: findElection.election_id,
@@ -135,7 +137,10 @@ export default async function handler(
         election_name: name,
         election_start_date: start_date,
         election_status: status,
-        election_positions: [...positionsToAdd],
+        election_positions: [
+          ...findElection.election_positions,
+          ...positionsToAdd,
+        ],
       },
     });
 

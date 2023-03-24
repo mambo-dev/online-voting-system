@@ -36,7 +36,7 @@ export default function AdminElectionActions({ election, token, user }: Props) {
       <div className="w-32">
         <button
           onClick={() => setOpenDeleteModal(true)}
-          className="py-2 px-4 w-full rounded-lg bg-red-500 text-white font-semibold focus:ring-2 ring-blue-300 ring-offset-1"
+          className="py-2 px-4 w-full rounded-lg bg-red-500 text-white font-semibold focus:ring-2 ring-red-400 ring-offset-1"
         >
           delete
         </button>

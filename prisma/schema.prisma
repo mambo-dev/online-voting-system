@@ -88,6 +88,7 @@ model Election {
   election_desription String
   Vote                Vote[]
   election_positions  String[]
+  election_created_at DateTime       @default(now())
 }
 
 enum ElectionStatus {

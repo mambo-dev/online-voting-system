@@ -102,7 +102,7 @@ export default function ElectionPage({ data }: Props) {
         </div>
         {isAdmin && (
           <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
-            <p>admin can delete or edit the elections</p>
+            <p>admin can delete or edit the elections details</p>
             <AdminElectionActions
               user={user}
               token={token}
