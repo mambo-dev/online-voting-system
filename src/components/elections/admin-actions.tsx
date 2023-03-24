@@ -2,7 +2,9 @@ import { Profile, Role } from "@prisma/client";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { ElectionCandidatesVoters } from "../../pages/dashboard/elections/[id]";
+import Modal from "../utils/Modal";
 import SidePanel from "../utils/sidepanel";
+import DeleteElection from "./delete-election";
 import UpdateElections from "./update-elections";
 
 type Props = {
@@ -48,6 +50,13 @@ export default function AdminElectionActions({ election, token, user }: Props) {
       >
         <UpdateElections election={election} token={token} />
       </SidePanel>
+      <Modal isOpen={openDeleteModal} setIsOpen={setOpenDeleteModal}>
+        <DeleteElection
+          election={election}
+          setIsOpen={setOpenDeleteModal}
+          token={token}
+        />
+      </Modal>
     </div>
   );
 }
