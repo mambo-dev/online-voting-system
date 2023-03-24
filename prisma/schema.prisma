@@ -45,13 +45,13 @@ enum Role {
 }
 
 model Candidate {
-  candidate_id                Int     @id @default(autoincrement())
+  candidate_id                Int    @id @default(autoincrement())
   candidate_vying_description String
   candidate_vying_position    String
-  candidate_phone_number      String
-  candidate_profile           Profile @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
-  candidate_profile_id        Int     @unique
-  Vote                        Vote[]
+
+  candidate_profile    Profile @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
+  candidate_profile_id Int     @unique
+  Vote                 Vote[]
 }
 
 model Voter {

@@ -14,6 +14,7 @@ import prisma from "../../../../lib/prisma";
 import { DecodedToken } from "../../../backend-utils/types";
 import AdminElectionActions from "../../../components/elections/admin-actions";
 import Candidates from "../../../components/elections/candidates";
+import RegisterForElection from "../../../components/elections/election-register";
 import SearchCandidate from "../../../components/elections/search-cadidate";
 import DashboardLayout from "../../../components/layout/dashboard";
 
@@ -24,8 +25,9 @@ type Props = {
 export default function ElectionPage({ data }: Props) {
   const { election, token, user } = data;
   const [openCreateElectionPanel, setOpenCreateElectionPanel] = useState(false);
-  const [openRegister, setOpenRegister] = useState(false);
+
   const isAdmin = user?.user_role === "admin";
+
   return (
     <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-6 px-4 md:px-20 gap-2 py-10">
       <div className="col-span-2 grid grid-cols-1 gap-2 ">
@@ -72,34 +74,7 @@ export default function ElectionPage({ data }: Props) {
             </p>
           </div>
         </div>
-        <div className=" bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col gap-y-2">
-          <p className="font-semibold text-sm">
-            To participate in this elections start by registering.
-          </p>
-          <p className="text-sm text-slate-700 font-normal">
-            Available positions ;
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {election?.election_positions.map(
-              (position: string, index: number) => (
-                <span
-                  key={index}
-                  className="rounded-lg shadow cursor-context-menu bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-2 w-full flex items-center justify-center"
-                >
-                  {position}
-                </span>
-              )
-            )}
-          </div>
-          <div className="w-fit mt-auto ml-auto py-2 flex ">
-            <button
-              onClick={() => setOpenRegister(true)}
-              className="py-2 px-4 rounded-lg bg-emerald-500 text-white font-semibold focus:ring-2 ring-offset-1 ring-emerald-300 border border-emerald-50"
-            >
-              register
-            </button>
-          </div>
-        </div>
+        <RegisterForElection election={election} token={token} user={user} />
         {isAdmin && (
           <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
             <p>admin can delete or edit the elections details</p>

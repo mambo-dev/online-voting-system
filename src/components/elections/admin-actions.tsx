@@ -23,8 +23,6 @@ export default function AdminElectionActions({ election, token, user }: Props) {
   const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
-  const handleDelete = () => {};
-
   return (
     <div className="flex items-center justify-between mt-auto py-4">
       <div className="w-32">
