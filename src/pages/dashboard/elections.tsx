@@ -55,10 +55,13 @@ export default function Elections({ data }: Props) {
             new Date().getMilliseconds()
         );
 
+        console.log("time remaining", timeRemaining);
+
         setTimeout(() => closeElection(election), timeRemaining);
       }
     });
   }, 10000);
+
   return (
     <div className="w-full min-h-screen">
       {elections.length <= 0 ? (

@@ -39,7 +39,7 @@ export default function ElectionPage({ data }: Props) {
 
   return (
     <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-6 px-4 md:px-20 gap-2 py-10">
-      <div className="col-span-2 grid grid-cols-1 gap-2 h-fit">
+      <div className="  col-span-2 grid grid-cols-1 gap-2 h-fit">
         <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
           <div className="w-full flex items-center justify-between ">
             <h1 className="font-bold text-slate-800 text-lg">
@@ -167,8 +167,7 @@ export default function ElectionPage({ data }: Props) {
           </div>
         )}
       </div>
-      <div className="col-span-4 flex flex-col gap-y-2 items-center">
-        <SearchCandidate election={election} token={token} />
+      <div className=" col-span-4 flex flex-col gap-y-2 items-center pb-10">
         <Candidates election={election} token={token} user={user} />
       </div>
     </div>

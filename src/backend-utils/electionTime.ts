@@ -15,8 +15,8 @@ export async function isExpired(election: Election) {
     };
   }
 
-  const endDate = new Date(findElection.election_end_date);
-  const currentDate = new Date();
+  const endDate = new Date(findElection.election_end_date).getMilliseconds();
+  const currentDate = new Date().getMilliseconds();
   if (currentDate >= endDate) {
     await prisma.election.update({
       where: {
