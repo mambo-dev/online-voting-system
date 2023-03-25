@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 import prisma from "../../../../lib/prisma";
 import { supabase } from "../../../../lib/supabase";
@@ -154,6 +155,13 @@ export default function ElectionPage({ data }: Props) {
               )}
             </div>
           </div>
+
+          <Link
+            href={`/dashboard/elections/${election.election_id}/results`}
+            className="text-blue-500 w-fit ml-auto mt-2 hover:underline"
+          >
+            results
+          </Link>
         </div>
         <RegisterForElection election={election} token={token} user={user} />
         {isAdmin && (
