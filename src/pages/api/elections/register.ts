@@ -124,6 +124,22 @@ export default async function handler(
     }
 
     const { description, position } = req.body;
+    //registers both as a voter and a candidate
+    await prisma.voter.create({
+      data: {
+        voter_profile: {
+          connect: {
+            profile_id: findProfile.profile_id,
+          },
+        },
+
+        voter_election: {
+          connect: {
+            election_id: findElection.election_id,
+          },
+        },
+      },
+    });
 
     await prisma.candidate.create({
       data: {

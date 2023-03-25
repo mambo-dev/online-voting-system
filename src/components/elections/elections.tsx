@@ -35,11 +35,11 @@ type ElectionProps = {
 
 function Election({ election }: ElectionProps) {
   const remainingCandidates = election.Candidate.slice(
-    5,
+    4,
     election.Candidate.length - 1
   ).length;
   const remainingVoters = election.Voter.slice(
-    5,
+    4,
     election.Voter.length - 1
   ).length;
   return (
@@ -86,7 +86,7 @@ function Election({ election }: ElectionProps) {
         </div>
         <div className="col-span-3 flex -space-x-2 overflow-hidden">
           {election.Candidate &&
-            election.Candidate.slice(0, 5).map((candidate) => {
+            election.Candidate.slice(0, 4).map((candidate) => {
               return (
                 <div
                   key={candidate.candidate_id}
@@ -105,13 +105,13 @@ function Election({ election }: ElectionProps) {
                     alt="profile image"
                     width={50}
                     height={50}
-                    className="rounded-full w-full h-full"
+                    className="rounded-full w-full h-full object-cover"
                   />
                 </div>
               );
             })}
           {remainingCandidates > 0 && (
-            <span className="inline-block h-10 w-10 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+            <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
               +{remainingCandidates}
             </span>
           )}
@@ -121,7 +121,7 @@ function Election({ election }: ElectionProps) {
         </div>
         <div className="col-span-3 flex -space-x-2 overflow-hidden">
           {election.Voter &&
-            election.Voter.slice(0, 5).map((voter) => {
+            election.Voter.slice(0, 4).map((voter) => {
               return (
                 <div
                   key={voter.voter_id}
@@ -139,13 +139,13 @@ function Election({ election }: ElectionProps) {
                     alt="profile image"
                     width={50}
                     height={50}
-                    className="rounded-full w-full h-full"
+                    className="rounded-full w-full h-full object-cover"
                   />
                 </div>
               );
             })}
           {remainingVoters > 0 && (
-            <span className="inline-block h-10 w-10 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+            <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
               +{remainingVoters}
             </span>
           )}

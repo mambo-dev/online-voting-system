@@ -11,10 +11,10 @@ async function main() {
     data: {
       user_password: hash,
       user_national_id: 37451861,
-      user_username: "Mike",
+      user_username: "Mitchele",
       Admin: {
         create: {
-          admin_full_name: "Michael Mambo Mwaura",
+          admin_full_name: "Mitchele Mambo Mwaura",
           admin_main: true,
         },
       },
@@ -22,10 +22,10 @@ async function main() {
         create: {
           profile_status: "active",
           profile_description: "i am the admin of this app",
-          profile_email: "admin@email.com",
-          profile_full_name: "Michael Mambo Mwaura",
-          profile_phone_number: "0741882041",
-          profile_image: "image.png",
+          profile_email: "mitchele@email.com",
+          profile_full_name: "Mitchele Mambo Mwaura",
+          profile_phone_number: "0741882052",
+          profile_image: "sexy.png",
         },
       },
       user_role: "admin",
