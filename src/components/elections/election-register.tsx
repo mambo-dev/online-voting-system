@@ -22,7 +22,7 @@ type Props = {
     user_role: Role | null;
     user_username: string;
   } | null;
-  election: ElectionCandidatesVoters | null;
+  election: ElectionCandidatesVoters;
   token: string;
 };
 
@@ -69,7 +69,7 @@ type RegisterProps = {
     user_role: Role | null;
     user_username: string;
   } | null;
-  election: ElectionCandidatesVoters | null;
+  election: ElectionCandidatesVoters;
   token: string;
 };
 function Register({ user, election, token }: RegisterProps) {
