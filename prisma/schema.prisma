@@ -21,17 +21,17 @@ model User {
 }
 
 model Profile {
-  profile_id           Int        @id @default(autoincrement())
+  profile_id           Int         @id @default(autoincrement())
   profile_full_name    String
   profile_description  String
   profile_phone_number String
-  profile_email        String     @unique
+  profile_email        String      @unique
   profile_status       Status
   profile_image        String
-  profile_user         User       @relation(fields: [profile_user_id], onDelete: Cascade, references: [user_id])
-  profile_user_id      Int        @unique
-  Candidate            Candidate?
-  Voter                Voter?
+  profile_user         User        @relation(fields: [profile_user_id], onDelete: Cascade, references: [user_id])
+  profile_user_id      Int         @unique
+  Candidate            Candidate[]
+  Voter                Voter[]
 }
 
 enum Status {
@@ -51,14 +51,14 @@ model Candidate {
   candidate_election          Election @relation(fields: [candidate_election_id], onDelete: Cascade, references: [election_id])
   candidate_election_id       Int
   candidate_profile           Profile  @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
-  candidate_profile_id        Int      @unique
+  candidate_profile_id        Int
   Vote                        Vote[]
 }
 
 model Voter {
   voter_id          Int      @id @default(autoincrement())
   voter_profile     Profile  @relation(fields: [voter_profile_id], onDelete: Cascade, references: [profile_id])
-  voter_profile_id  Int      @unique
+  voter_profile_id  Int
   voter_election    Election @relation(fields: [voter_election_id], onDelete: Cascade, references: [election_id])
   voter_election_id Int
   Vote              Vote[]

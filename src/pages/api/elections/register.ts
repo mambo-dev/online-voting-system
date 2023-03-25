@@ -3,6 +3,7 @@ import jwtDecode from "jwt-decode";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../lib/prisma";
 import { handleAuthorization } from "../../../backend-utils/authorization";
+import { isExpired } from "../../../backend-utils/electionTime";
 import { DecodedToken, HandleError } from "../../../backend-utils/types";
 import { handleBodyNotEmpty } from "../../../backend-utils/validation";
 
@@ -86,6 +87,17 @@ export default async function handler(
                 ? "election may have been deleted"
                 : "kindly create a profile first"
             }`,
+          },
+        ],
+      });
+    }
+
+    if ((await isExpired(findElection)).expired) {
+      return res.status(403).json({
+        registered: null,
+        errors: [
+          {
+            message: "election time has already passed",
           },
         ],
       });

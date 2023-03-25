@@ -169,7 +169,7 @@ export default function ElectionPage({ data }: Props) {
       </div>
       <div className="col-span-4 flex flex-col gap-y-2 items-center">
         <SearchCandidate election={election} token={token} />
-        <Candidates election={election} token={token} />
+        <Candidates election={election} token={token} user={user} />
       </div>
     </div>
   );

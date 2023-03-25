@@ -1,5 +1,5 @@
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
-import { Candidate as CandidateType, Profile } from "@prisma/client";
+import { Candidate as CandidateType, Profile, Role } from "@prisma/client";
 import Image from "next/image";
 import React from "react";
 import { truncate } from "../../pages/dashboard/elections";
@@ -7,10 +7,17 @@ import { ElectionCandidatesVoters } from "../../pages/dashboard/elections/[id]";
 
 type Props = {
   election: ElectionCandidatesVoters;
+  user: {
+    Profile: Profile | null;
+    user_national_id: number;
+    user_id: number;
+    user_role: Role | null;
+    user_username: string;
+  } | null;
   token: string;
 };
 
-export default function Candidates({ election, token }: Props) {
+export default function Candidates({ election, token, user }: Props) {
   const { Candidate: candidates } = election;
   return (
     <div className="flex flex-col gap-y-2 w-full">
@@ -19,6 +26,8 @@ export default function Candidates({ election, token }: Props) {
           key={candidate.candidate_id}
           candidate={candidate}
           elections={election}
+          user={user}
+          token={token}
         />
       ))}
     </div>
@@ -28,11 +37,20 @@ export default function Candidates({ election, token }: Props) {
 function Candidate({
   candidate,
   elections,
+  user,
 }: {
   candidate: CandidateType & {
     candidate_profile: Profile;
   };
   elections: ElectionCandidatesVoters;
+  user: {
+    Profile: Profile | null;
+    user_national_id: number;
+    user_id: number;
+    user_role: Role | null;
+    user_username: string;
+  } | null;
+  token: string;
 }) {
   const totalCandidateVotes = elections.Vote.map((vote) => {
     return vote.vote_candidate_id === candidate.candidate_id;
@@ -42,7 +60,12 @@ function Candidate({
   const candidatePercentage =
     totalCandidateVotes > 0 ? (totalCandidateVotes / totalVotes) * 100 : 0;
 
+  const isRegistered = elections.Voter.some(
+    (voter) => voter.voter_profile.profile_user_id === user?.user_id
+  );
+
   async function handleVote() {}
+
   return (
     <div className="py-2 bg-white rounded-lg shadow w-full flex px-2 flex-col">
       <div className="w-full flex items-center justify-start gap-x-4">
@@ -83,14 +106,25 @@ function Candidate({
         </p>
       </div>
       <VoteBar percentage={candidatePercentage} />
-      <div className="w-fit mt-2 ml-auto">
-        <button
-          onClick={handleVote}
-          className="w-full py-2 inline-flex items-center justify-center rounded-lg gap-x-2 text-white font-semibold px-4 bg-green-400 focus:border border-green-300 focus:ring-2 ring-green-400 ring-offset-1 "
-        >
-          Vote
-        </button>
-      </div>
+      {isRegistered ? (
+        <div className="w-fit mt-2 ml-auto">
+          <button
+            onClick={handleVote}
+            className="w-full py-2 inline-flex items-center justify-center rounded-lg gap-x-2 text-white font-semibold px-4 bg-green-400 focus:border border-green-300 focus:ring-2 ring-green-400 ring-offset-1 "
+          >
+            Vote
+          </button>
+        </div>
+      ) : (
+        <div className="w-fit mt-2 ml-auto">
+          <button
+            disabled
+            className="w-full  py-2 inline-flex items-center justify-center rounded-lg gap-x-2 text-white font-semibold px-4 bg-red-400 focus:border border-red-300 focus:ring-2 ring-red-400 ring-offset-1 "
+          >
+            register first to vote
+          </button>
+        </div>
+      )}
     </div>
   );
 }

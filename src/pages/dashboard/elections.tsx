@@ -31,7 +31,8 @@ export default function Elections({ data }: Props) {
   const isAdmin = user?.user_role === "admin";
   const isElectionClosed = (election: Election) => {
     if (!election) return false;
-    return new Date() >= election?.election_end_date;
+    const endDate = new Date(election?.election_end_date);
+    return new Date() >= endDate;
   };
 
   const closeElection = async (election: Election) => {
@@ -50,7 +51,7 @@ export default function Elections({ data }: Props) {
         //@ts-ignore
 
         const timeRemaining = Math.abs(
-          election.election_end_date.getMilliseconds() -
+          new Date(election?.election_end_date).getMilliseconds() -
             new Date().getMilliseconds()
         );
 
