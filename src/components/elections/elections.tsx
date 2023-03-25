@@ -35,32 +35,33 @@ type ElectionProps = {
 
 function Election({ election }: ElectionProps) {
   const remainingCandidates = election.Candidate.slice(
-    3,
+    5,
     election.Candidate.length - 1
   ).length;
   const remainingVoters = election.Voter.slice(
-    3,
+    5,
     election.Voter.length - 1
   ).length;
   return (
-    <div className="w-full h-fit  bg-white shadow rounded-lg border border-slate-300 py-2 px-2">
-      <div className="w-full flex items-center justify-between ">
+    <div className="w-full h-fit bg-white shadow rounded-lg border border-slate-300 py-2 px-2">
+      <div className="w-full flex items-center justify-between">
         <h1 className="font-bold text-slate-800 text-lg">
           {election.election_name}
         </h1>
         <span
-          className={`rounded-full py-1  px-4 flex items-center justify-center font-semibold ${
-            election.election_status === "open"
-              ? "bg-emerald-300 text-emerald-900 border border-emerald-400"
-              : election.election_status === "closed"
-              ? "bg-red-300 text-red-800 border border-red-400"
-              : "bg-amber-300 text-amber-800 border border-amber-400"
-          }`}
+          className={`rounded-full py-1 px-4 flex items-center justify-center font-semibold 
+        ${
+          election.election_status === "open"
+            ? "bg-emerald-300 text-emerald-900 border border-emerald-400"
+            : election.election_status === "closed"
+            ? "bg-red-300 text-red-800 border border-red-400"
+            : "bg-amber-300 text-amber-800 border border-amber-400"
+        }`}
         >
           {election.election_status}
         </span>
       </div>
-      <div className="flex  justify-between items-center py-2">
+      <div className="flex justify-between items-center py-2">
         <span className="text-sm font-semibold">
           start date:{" "}
           <p className="font-medium">
@@ -74,76 +75,80 @@ function Election({ election }: ElectionProps) {
           </p>
         </span>
       </div>
-      <div className="flex py-2 font-medium  ">
+      <div className="flex py-2 font-medium">
         <p className="first-letter:uppercase">
           {truncate(election.election_desription, 65)}
         </p>
       </div>
-      <div className="flex items-center justify-between py-2">
-        <div className="flex flex-col gap-y-1">
+      <div className="grid grid-cols-4 gap-2 py-2 font-medium">
+        <div className="col-span-1">
           <label className="text-slate-800 font-semibold">candidates</label>
-          <div className="flex -space-x-1 overflow-hidden">
-            {election.Candidate &&
-              election.Candidate.slice(0, 3).map((candidate) => {
-                return (
-                  <div
-                    key={candidate.candidate_id}
-                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white "
-                  >
-                    <Image
-                      src={
-                        candidate.candidate_profile.profile_image &&
-                        candidate.candidate_profile.profile_image.length > 0 &&
-                        candidate.candidate_profile.profile_image.split(
-                          "es/"
-                        )[1] !== "undefined"
-                          ? candidate.candidate_profile.profile_image
-                          : "/images/avatar.png"
-                      }
-                      alt="profile image"
-                      width={50}
-                      height={50}
-                      className="rounded-full w-full h-full"
-                    />
-                  </div>
-                );
-              })}
-            <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+        </div>
+        <div className="col-span-3 flex -space-x-2 overflow-hidden">
+          {election.Candidate &&
+            election.Candidate.slice(0, 5).map((candidate) => {
+              return (
+                <div
+                  key={candidate.candidate_id}
+                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                >
+                  <Image
+                    src={
+                      candidate.candidate_profile.profile_image &&
+                      candidate.candidate_profile.profile_image.length > 0 &&
+                      candidate.candidate_profile.profile_image.split(
+                        "es/"
+                      )[1] !== "undefined"
+                        ? candidate.candidate_profile.profile_image
+                        : "/images/avatar.png"
+                    }
+                    alt="profile image"
+                    width={50}
+                    height={50}
+                    className="rounded-full w-full h-full"
+                  />
+                </div>
+              );
+            })}
+          {remainingCandidates > 0 && (
+            <span className="inline-block h-10 w-10 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
               +{remainingCandidates}
             </span>
-          </div>
+          )}
         </div>
-        <div className="flex flex-col gap-y-1">
+        <div className="col-span-1">
           <label className="text-slate-800 font-semibold">voters</label>
-          <div className="flex -space-x-1 overflow-hidden">
-            {election.Voter &&
-              election.Voter.slice(0, 3).map((voter) => {
-                return (
-                  <div
-                    key={voter.voter_id}
-                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white "
-                  >
-                    <Image
-                      src={
-                        voter.voter_profile.profile_image &&
-                        voter.voter_profile.profile_image.length > 0 &&
-                        voter.voter_profile.profile_image.split("es/")[1] !==
-                          "undefined"
-                          ? voter.voter_profile.profile_image
-                          : "/images/avatar.png"
-                      }
-                      alt="profile image"
-                      width={50}
-                      height={50}
-                      className="rounded-full w-full h-full"
-                    />
-                  </div>
-                );
-              })}
-            <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+        </div>
+        <div className="col-span-3 flex -space-x-2 overflow-hidden">
+          {election.Voter &&
+            election.Voter.slice(0, 5).map((voter) => {
+              return (
+                <div
+                  key={voter.voter_id}
+                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                >
+                  <Image
+                    src={
+                      voter.voter_profile.profile_image &&
+                      voter.voter_profile.profile_image.length > 0 &&
+                      voter.voter_profile.profile_image.split("es/")[1] !==
+                        "undefined"
+                        ? voter.voter_profile.profile_image
+                        : "/images/avatar.png"
+                    }
+                    alt="profile image"
+                    width={50}
+                    height={50}
+                    className="rounded-full w-full h-full"
+                  />
+                </div>
+              );
+            })}
+          {remainingVoters > 0 && (
+            <span className="inline-block h-10 w-10 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
               +{remainingVoters}
             </span>
-          </div>
+          )}
         </div>
       </div>
 

@@ -48,7 +48,11 @@ export default function Elections({ data }: Props) {
     elections.forEach((election) => {
       if (election.election_status === "open" && isElectionClosed(election)) {
         //@ts-ignore
-        const timeRemaining = Math.abs(election.election_end_date - new Date());
+
+        const timeRemaining = Math.abs(
+          election.election_end_date.getMilliseconds() -
+            new Date().getMilliseconds()
+        );
 
         setTimeout(() => closeElection(election), timeRemaining);
       }
