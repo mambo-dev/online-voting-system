@@ -38,7 +38,8 @@ export default async function handler(
       });
     }
 
-    const { election_id, candidate_id, voter_profile_id } = req.body;
+    const { election_id, candidate_id, voter_profile_id, vote_position } =
+      req.body;
     console.log(candidate_id);
 
     if (!election_id || !candidate_id || !voter_profile_id) {
@@ -152,6 +153,7 @@ export default async function handler(
 
     await prisma.vote.create({
       data: {
+        vote_candidate_position: String(vote_position),
         vote_candidate: {
           connect: {
             candidate_id: findCandidate.candidate_id,
@@ -175,11 +177,6 @@ export default async function handler(
       errors: [],
     });
   } catch (error: any) {
-    console.error(
-      error.message ===
-        "\nInvalid `prisma.vote.create()` invocation:\n\n\nUnique constraint failed on the fields: (`vote_voter_id`,`vote_candidate_id`)"
-    );
-
     if (
       error.message ===
       "\nInvalid `prisma.vote.create()` invocation:\n\n\nUnique constraint failed on the fields: (`vote_voter_id`,`vote_candidate_id`)"
@@ -189,6 +186,19 @@ export default async function handler(
         errors: [
           {
             message: "cannot vote for the same candidate twice",
+          },
+        ],
+      });
+    }
+    if (
+      error.message ===
+      "\nInvalid `prisma.vote.create()` invocation:\n\n\nUnique constraint failed on the fields: (`vote_voter_id`,`vote_election_id`,`vote_candidate_position`)"
+    ) {
+      return res.status(500).json({
+        voted: null,
+        errors: [
+          {
+            message: "cannot vote for the same position twice",
           },
         ],
       });

@@ -74,15 +74,17 @@ model Admin {
 }
 
 model Vote {
-  vote_id           Int       @id @default(autoincrement())
-  vote_voter        Voter     @relation(fields: [vote_voter_id], onDelete: Cascade, references: [voter_id])
-  vote_voter_id     Int
-  vote_candidate    Candidate @relation(fields: [vote_candidate_id], onDelete: Cascade, references: [candidate_id])
-  vote_candidate_id Int
-  vote_election     Election  @relation(fields: [vote_election_id], onDelete: Cascade, references: [election_id])
-  vote_election_id  Int
+  vote_id                 Int       @id @default(autoincrement())
+  vote_voter              Voter     @relation(fields: [vote_voter_id], onDelete: Cascade, references: [voter_id])
+  vote_voter_id           Int
+  vote_candidate          Candidate @relation(fields: [vote_candidate_id], onDelete: Cascade, references: [candidate_id])
+  vote_candidate_id       Int
+  vote_election           Election  @relation(fields: [vote_election_id], onDelete: Cascade, references: [election_id])
+  vote_election_id        Int
+  vote_candidate_position String
 
   @@unique([vote_voter_id, vote_candidate_id])
+  @@unique([vote_voter_id, vote_election_id, vote_candidate_position])
 }
 
 model Election {

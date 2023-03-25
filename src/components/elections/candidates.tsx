@@ -75,7 +75,11 @@ function Candidate({
     (voter) => voter.voter_profile.profile_user_id === user?.user_id
   );
 
-  async function handleVote(candidate: any) {
+  async function handleVote(
+    candidate: CandidateType & {
+      candidate_profile: Profile;
+    }
+  ) {
     setLoading(true);
     setErrors([]);
     try {
@@ -85,6 +89,7 @@ function Candidate({
           candidate_id: candidate.candidate_id,
           voter_profile_id: user?.Profile?.profile_id,
           election_id: elections.election_id,
+          vote_position: candidate.candidate_vying_position,
         },
         {
           headers: {
