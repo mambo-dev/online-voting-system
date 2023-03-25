@@ -188,7 +188,7 @@ type Data = {
 };
 
 export type ElectionCandidatesVoters =
-  | (Election & {
+  | Election & {
       Candidate: (Candidate & {
         candidate_profile: Profile;
       })[];
@@ -199,8 +199,7 @@ export type ElectionCandidatesVoters =
         vote_candidate: Candidate;
         vote_voter: Voter;
       })[];
-    })
-  | null;
+    };
 
 //@ts-ignore
 export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
@@ -264,6 +263,15 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
       },
     },
   });
+
+  if (!election) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/dashboard/elections",
+      },
+    };
+  }
 
   const editedElections = {
     ...election,
