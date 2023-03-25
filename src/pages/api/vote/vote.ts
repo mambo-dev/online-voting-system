@@ -38,9 +38,10 @@ export default async function handler(
       });
     }
 
-    const { election_id, candidate_id, voter_id } = req.body;
+    const { election_id, candidate_id, voter_profile_id } = req.body;
+    console.log(candidate_id);
 
-    if (!election_id || !candidate_id || voter_id) {
+    if (!election_id || !candidate_id || !voter_profile_id) {
       return res.status(404).json({
         voted: null,
         errors: [
@@ -64,9 +65,20 @@ export default async function handler(
       },
     });
 
-    const findVoter = await prisma.voter.findUnique({
+    const findProfile = await prisma.profile.findUnique({
       where: {
-        voter_id: Number(voter_id),
+        profile_id: Number(voter_profile_id),
+      },
+      include: {
+        Voter: true,
+      },
+    });
+
+    const findVoter = await prisma.voter.findFirst({
+      where: {
+        voter_profile: {
+          profile_id: findProfile?.profile_id,
+        },
       },
     });
 
@@ -127,16 +139,16 @@ export default async function handler(
     }
     //check the votes if voter has already voted for this candidate return error else create a vote
 
-    const voterHasVoted = findCandidate.candidate_election.Vote.some((vote) => {
-      return vote.vote_voter_id === findVoter.voter_id;
-    });
+    // const voterHasVoted = findCandidate.candidate_election.Vote.some((vote) => {
+    //   return vote.vote_voter_id === findVoter.voter_id;
+    // });
 
-    if (voterHasVoted) {
-      return res.status(200).json({
-        voted: false,
-        errors: [{ message: "you have already voted for this candidate" }],
-      });
-    }
+    // if (voterHasVoted) {
+    //   return res.status(200).json({
+    //     voted: false,
+    //     errors: [{ message: "you have already voted for this candidate" }],
+    //   });
+    // }
 
     await prisma.vote.create({
       data: {
@@ -163,6 +175,24 @@ export default async function handler(
       errors: [],
     });
   } catch (error: any) {
+    console.error(
+      error.message ===
+        "\nInvalid `prisma.vote.create()` invocation:\n\n\nUnique constraint failed on the fields: (`vote_voter_id`,`vote_candidate_id`)"
+    );
+
+    if (
+      error.message ===
+      "\nInvalid `prisma.vote.create()` invocation:\n\n\nUnique constraint failed on the fields: (`vote_voter_id`,`vote_candidate_id`)"
+    ) {
+      return res.status(500).json({
+        voted: null,
+        errors: [
+          {
+            message: "cannot vote for the same candidate twice",
+          },
+        ],
+      });
+    }
     return res.status(500).json({
       voted: null,
       errors: [

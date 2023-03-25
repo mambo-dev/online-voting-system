@@ -53,6 +53,7 @@ model Candidate {
   candidate_profile           Profile  @relation(fields: [candidate_profile_id], onDelete: Cascade, references: [profile_id])
   candidate_profile_id        Int
   Vote                        Vote[]
+  vote_count                  Int      @default(0)
 }
 
 model Voter {
@@ -80,6 +81,8 @@ model Vote {
   vote_candidate_id Int
   vote_election     Election  @relation(fields: [vote_election_id], onDelete: Cascade, references: [election_id])
   vote_election_id  Int
+
+  @@unique([vote_voter_id, vote_candidate_id])
 }
 
 model Election {

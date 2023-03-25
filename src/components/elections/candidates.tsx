@@ -1,9 +1,14 @@
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { Candidate as CandidateType, Profile, Role } from "@prisma/client";
+import axios from "axios";
 import Image from "next/image";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { HandleError } from "../../backend-utils/types";
 import { truncate } from "../../pages/dashboard/elections";
 import { ElectionCandidatesVoters } from "../../pages/dashboard/elections/[id]";
+import ErrorMessage from "../utils/error";
+import Success from "../utils/success";
 
 type Props = {
   election: ElectionCandidatesVoters;
@@ -38,6 +43,7 @@ function Candidate({
   candidate,
   elections,
   user,
+  token,
 }: {
   candidate: CandidateType & {
     candidate_profile: Profile;
@@ -52,19 +58,80 @@ function Candidate({
   } | null;
   token: string;
 }) {
-  const totalCandidateVotes = elections.Vote.map((vote) => {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<HandleError[]>([]);
+  const router = useRouter();
+  const candidateVotes = elections.Vote.filter((vote) => {
     return vote.vote_candidate_id === candidate.candidate_id;
-  }).length;
+  });
+
   const totalVotes = elections.Vote.length;
 
   const candidatePercentage =
-    totalCandidateVotes > 0 ? (totalCandidateVotes / totalVotes) * 100 : 0;
+    candidateVotes.length > 0 ? (candidateVotes.length / totalVotes) * 100 : 0;
 
   const isRegistered = elections.Voter.some(
     (voter) => voter.voter_profile.profile_user_id === user?.user_id
   );
 
-  async function handleVote() {}
+  async function handleVote(candidate: any) {
+    setLoading(true);
+    setErrors([]);
+    try {
+      const res = await axios.post(
+        `/api/vote/vote`,
+        {
+          candidate_id: candidate.candidate_id,
+          voter_profile_id: user?.Profile?.profile_id,
+          election_id: elections.election_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const {
+        voted,
+        errors: serverErrors,
+      }: {
+        voted: boolean | null;
+        errors: HandleError[] | [];
+      } = await res.data;
+
+      if (serverErrors.length > 0 || !voted) {
+        setLoading(false);
+
+        setErrors([...serverErrors]);
+        return;
+      }
+      setLoading(false);
+      setSuccess(true);
+      setErrors([]);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 1000);
+      setTimeout(() => {
+        router.reload();
+      }, 2000);
+    } catch (error: any) {
+      console.log(error);
+      setLoading(false);
+      error.response?.data.errors && error.response.data.errors.length > 0
+        ? setErrors([...error.response.data.errors])
+        : setErrors([
+            {
+              message: "something unexpected happened try again later",
+            },
+          ]);
+      setLoading(false);
+      setTimeout(() => {
+        setErrors([]);
+      }, 2000);
+    }
+  }
 
   return (
     <div className="py-2 bg-white rounded-lg shadow w-full flex px-2 flex-col">
@@ -105,14 +172,15 @@ function Candidate({
           {truncate(candidate.candidate_vying_description, 300)}{" "}
         </p>
       </div>
+
       <VoteBar percentage={candidatePercentage} />
       {isRegistered ? (
         <div className="w-fit mt-2 ml-auto">
           <button
-            onClick={handleVote}
+            onClick={() => handleVote(candidate)}
             className="w-full py-2 inline-flex items-center justify-center rounded-lg gap-x-2 text-white font-semibold px-4 bg-green-400 focus:border border-green-300 focus:ring-2 ring-green-400 ring-offset-1 "
           >
-            Vote
+            {loading ? "submitting" : "vote"}
           </button>
         </div>
       ) : (
@@ -125,13 +193,15 @@ function Candidate({
           </button>
         </div>
       )}
+      <ErrorMessage errors={errors} />
+      <Success success={success} message="succesfully voted thenk you" />
     </div>
   );
 }
 
 function VoteBar({ percentage }: { percentage: number }) {
   let bgColor = "";
-  if (percentage >= 70) {
+  if (percentage >= 60) {
     bgColor = "bg-green-500";
   } else if (percentage >= 30) {
     bgColor = "bg-yellow-500";
