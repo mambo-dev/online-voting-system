@@ -162,6 +162,7 @@ export default function Elections({ data }: Props) {
               />
             </div>
           )}
+
           <ElectionsComponent elections={elections} token={token} user={user} />
         </div>
       )}

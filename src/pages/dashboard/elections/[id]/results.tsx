@@ -1,25 +1,101 @@
 import { CheckBadgeIcon } from "@heroicons/react/24/outline";
-import { Profile, Result, Role } from "@prisma/client";
+import {
+  Candidate,
+  Election,
+  Profile,
+  Result,
+  Role,
+  Vote,
+} from "@prisma/client";
+import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 import prisma from "../../../../../lib/prisma";
-import { DecodedToken } from "../../../../backend-utils/types";
+import { DecodedToken, HandleError } from "../../../../backend-utils/types";
 import DashboardLayout from "../../../../components/layout/dashboard";
 import Button from "../../../../components/utils/button";
+import ErrorMessage from "../../../../components/utils/error";
+import Success from "../../../../components/utils/success";
 
 type Props = {
   data: Data;
 };
 
 export default function Results({ data }: Props) {
-  const { token, user, results } = data;
+  const { token, user, results, election } = data;
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<HandleError[]>([]);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
-  const publishResults = () => {};
+  const publishResults = async () => {
+    setLoading(true);
+    setErrors([]);
+    try {
+      const res = await axios.get(
+        `/api/elections/results?election_id=${election?.election_id}`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const {
+        published,
+        errors: serverErrors,
+      }: {
+        published: boolean | null;
+        errors: HandleError[] | [];
+      } = await res.data;
+
+      if (serverErrors.length > 0 || !published) {
+        setLoading(false);
+
+        setErrors([...serverErrors]);
+        return;
+      }
+      setLoading(false);
+      setSuccess(true);
+      setErrors([]);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 1000);
+      setTimeout(() => {
+        router.reload();
+      }, 2000);
+    } catch (error: any) {
+      console.log(error);
+      setLoading(false);
+      error.response?.data.errors && error.response.data.errors.length > 0
+        ? setErrors([...error.response.data.errors])
+        : setErrors([
+            {
+              message: "something unexpected happened try again later",
+            },
+          ]);
+      setLoading(false);
+      setTimeout(() => {
+        setErrors([]);
+      }, 2000);
+    }
+  };
 
   const isAdmin = user?.user_role === "admin";
+  const isPublished = election?.results_published;
+
+  console.log(results);
   return (
-    <div className="w-full min-h-screen py-4 px-2">
+    <div className="relative w-full min-h-screen py-4 px-2">
+      {(success || errors.length > 0) && (
+        <div className="absolute top-10 bottom-0 left-0 right-0 w-fit h-fit mx-auto ">
+          <ErrorMessage errors={errors} />
+          <Success message="results have been published" success={success} />
+        </div>
+      )}
       <div className="w-full flex items-center justify-end">
         {isAdmin && (
           <div className="ml-auto w-fit">
@@ -27,11 +103,36 @@ export default function Results({ data }: Props) {
               text="publish results"
               onClick={() => publishResults()}
               svg={<CheckBadgeIcon className="w-5 h-5" />}
+              loading={loading}
             />
           </div>
         )}
       </div>
-      <div className="bg-white max-w-xl"></div>
+      {!isPublished && (
+        <div className="mx-auto  py-32">
+          <div className="flex flex-col gap-y-2 items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-10 h-10 text-slate-700 font-light"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+              />
+            </svg>
+
+            <h1 className="text-xl font-semibold">unpublished</h1>
+            <p className="text-slate-700 font-medium">
+              publish this elections for users to see the results
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -46,6 +147,14 @@ type Data = {
     user_username: string;
   } | null;
   results: Result[];
+  election:
+    | (Election & {
+        Candidate: (Candidate & {
+          candidate_profile: Profile;
+        })[];
+        Vote: Vote[];
+      })
+    | null;
 };
 
 export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
@@ -104,6 +213,8 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     },
   });
 
+  const isAdmin = loggedInUser?.user_role === "admin";
+
   if (findElection?.election_status !== "closed") {
     return {
       redirect: {
@@ -115,7 +226,7 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
   const results = await prisma.result.findMany({
     where: {
       result_election: {
-        election_id: findElection.election_id,
+        election_id: findElection?.election_id,
       },
     },
   });
@@ -126,6 +237,7 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
         token: access_token,
         user: loggedInUser,
         results: results,
+        election: JSON.parse(JSON.stringify(findElection)),
       },
     },
   };

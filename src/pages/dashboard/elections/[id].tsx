@@ -27,6 +27,7 @@ type Props = {
 
 export default function ElectionPage({ data }: Props) {
   const { election, token, user } = data;
+  const [alert, setAlert] = useState(true);
   const [openCreateElectionPanel, setOpenCreateElectionPanel] = useState(false);
   const remainingCandidates = election?.Candidate.slice(
     4,
@@ -37,148 +38,173 @@ export default function ElectionPage({ data }: Props) {
     election.Voter.length - 1
   ).length;
   const isAdmin = user?.user_role === "admin";
+  const isClosed = election.election_status === "closed";
+  const resultsIsPublished = election.results_published;
 
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-6 px-4 md:px-20 gap-2 py-10">
-      <div className="  col-span-2 grid grid-cols-1 gap-2 h-fit">
-        <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
-          <div className="w-full flex items-center justify-between ">
-            <h1 className="font-bold text-slate-800 text-lg">
-              {election?.election_name}
-            </h1>
-            <span
-              className={`rounded-full py-1  px-4 flex items-center justify-center font-semibold ${
-                election?.election_status === "open"
-                  ? " text-emerald-500  "
-                  : election?.election_status === "closed"
-                  ? " text-red-800  "
-                  : " text-amber-800  "
-              }`}
-            >
-              {election?.election_status}
-            </span>
-          </div>
-          <div className="flex  justify-between items-center py-2">
-            <span className="text-sm font-semibold">
-              start date:{" "}
-              <p className="font-medium">
-                {format(
-                  new Date(`${election?.election_start_date}`),
-                  "MM/dd/yyyy"
-                )}
-              </p>
-            </span>
-            <span className="text-sm font-semibold">
-              closing date:{" "}
-              <p className="font-medium">
-                {format(
-                  new Date(`${election?.election_end_date}`),
-                  "MM/dd/yyyy"
-                )}
-              </p>
-            </span>
-          </div>
-          <div className="flex py-2 font-medium  ">
-            <p className="first-letter:uppercase">
-              {election?.election_desription}
-            </p>
-          </div>
-          <div className="grid grid-cols-4 gap-2 py-2 font-medium">
-            <div className="col-span-1">
-              <label className="text-slate-800 font-semibold">candidates</label>
-            </div>
-            <div className="col-span-3 flex -space-x-2 overflow-hidden">
-              {election?.Candidate &&
-                election.Candidate.slice(0, 4).map((candidate) => {
-                  return (
-                    <div
-                      key={candidate.candidate_id}
-                      className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                    >
-                      <Image
-                        src={
-                          candidate.candidate_profile.profile_image &&
-                          candidate.candidate_profile.profile_image.length >
-                            0 &&
-                          candidate.candidate_profile.profile_image.split(
-                            "es/"
-                          )[1] !== "undefined"
-                            ? candidate.candidate_profile.profile_image
-                            : "/images/avatar.png"
-                        }
-                        alt="profile image"
-                        width={50}
-                        height={50}
-                        className="rounded-full w-full h-full object-cover"
-                      />
-                    </div>
-                  );
-                })}
-              {remainingCandidates && remainingCandidates > 0 && (
-                <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
-                  +{remainingCandidates}
-                </span>
-              )}
-            </div>
-            <div className="col-span-1">
-              <label className="text-slate-800 font-semibold">voters</label>
-            </div>
-            <div className="col-span-3 flex -space-x-2 overflow-hidden">
-              {election?.Voter &&
-                election.Voter.slice(0, 4).map((voter) => {
-                  return (
-                    <div
-                      key={voter.voter_id}
-                      className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                    >
-                      <Image
-                        src={
-                          voter.voter_profile.profile_image &&
-                          voter.voter_profile.profile_image.length > 0 &&
-                          voter.voter_profile.profile_image.split("es/")[1] !==
-                            "undefined"
-                            ? voter.voter_profile.profile_image
-                            : "/images/avatar.png"
-                        }
-                        alt="profile image"
-                        width={50}
-                        height={50}
-                        className="rounded-full w-full h-full object-cover"
-                      />
-                    </div>
-                  );
-                })}
-              {remainingVoters && remainingVoters > 0 && (
-                <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
-                  +{remainingVoters}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <Link
-            href={`/dashboard/elections/${election.election_id}/results`}
-            className="text-blue-500 w-fit ml-auto mt-2 hover:underline"
-          >
-            results
-          </Link>
+    <>
+      {alert && (
+        <div
+          className={`w-1/2 mx-auto py-2 px-5 font-bold flex items-center justify-between  text-sm ${
+            resultsIsPublished
+              ? "bg-green-200 text-green-900"
+              : "bg-red-200 text-red-900"
+          } `}
+        >
+          <p>
+            {!resultsIsPublished
+              ? !isClosed
+                ? "the results will be published once election is closed "
+                : "waiting for the admin to publish results"
+              : "yeei the results are published"}
+          </p>
+          <button onClick={() => setAlert(false)}>X</button>
         </div>
-        <RegisterForElection election={election} token={token} user={user} />
-        {isAdmin && (
+      )}
+      <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-6 px-4 md:px-20 gap-2 py-10">
+        <div className="  col-span-2 grid grid-cols-1 gap-2 h-fit">
           <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
-            <p>admin can delete or edit the elections details</p>
-            <AdminElectionActions
-              user={user}
-              token={token}
-              election={election}
-            />
+            <div className="w-full flex items-center justify-between ">
+              <h1 className="font-bold text-slate-800 text-lg">
+                {election?.election_name}
+              </h1>
+              <span
+                className={`rounded-full py-1  px-4 flex items-center justify-center font-semibold ${
+                  election?.election_status === "open"
+                    ? " text-emerald-500  "
+                    : election?.election_status === "closed"
+                    ? " text-red-800  "
+                    : " text-amber-800  "
+                }`}
+              >
+                {election?.election_status}
+              </span>
+            </div>
+            <div className="flex  justify-between items-center py-2">
+              <span className="text-sm font-semibold">
+                start date:{" "}
+                <p className="font-medium">
+                  {format(
+                    new Date(`${election?.election_start_date}`),
+                    "MM/dd/yyyy"
+                  )}
+                </p>
+              </span>
+              <span className="text-sm font-semibold">
+                closing date:{" "}
+                <p className="font-medium">
+                  {format(
+                    new Date(`${election?.election_end_date}`),
+                    "MM/dd/yyyy"
+                  )}
+                </p>
+              </span>
+            </div>
+            <div className="flex py-2 font-medium  ">
+              <p className="first-letter:uppercase">
+                {election?.election_desription}
+              </p>
+            </div>
+            <div className="grid grid-cols-4 gap-2 py-2 font-medium">
+              <div className="col-span-1">
+                <label className="text-slate-800 font-semibold">
+                  candidates
+                </label>
+              </div>
+              <div className="col-span-3 flex -space-x-2 overflow-hidden">
+                {election?.Candidate &&
+                  election.Candidate.slice(0, 4).map((candidate) => {
+                    return (
+                      <div
+                        key={candidate.candidate_id}
+                        className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                      >
+                        <Image
+                          src={
+                            candidate.candidate_profile.profile_image &&
+                            candidate.candidate_profile.profile_image.length >
+                              0 &&
+                            candidate.candidate_profile.profile_image.split(
+                              "es/"
+                            )[1] !== "undefined"
+                              ? candidate.candidate_profile.profile_image
+                              : "/images/avatar.png"
+                          }
+                          alt="profile image"
+                          width={50}
+                          height={50}
+                          className="rounded-full w-full h-full object-cover"
+                        />
+                      </div>
+                    );
+                  })}
+                {remainingCandidates && remainingCandidates > 0 && (
+                  <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+                    +{remainingCandidates}
+                  </span>
+                )}
+              </div>
+              <div className="col-span-1">
+                <label className="text-slate-800 font-semibold">voters</label>
+              </div>
+              <div className="col-span-3 flex -space-x-2 overflow-hidden">
+                {election?.Voter &&
+                  election.Voter.slice(0, 4).map((voter) => {
+                    return (
+                      <div
+                        key={voter.voter_id}
+                        className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                      >
+                        <Image
+                          src={
+                            voter.voter_profile.profile_image &&
+                            voter.voter_profile.profile_image.length > 0 &&
+                            voter.voter_profile.profile_image.split(
+                              "es/"
+                            )[1] !== "undefined"
+                              ? voter.voter_profile.profile_image
+                              : "/images/avatar.png"
+                          }
+                          alt="profile image"
+                          width={50}
+                          height={50}
+                          className="rounded-full w-full h-full object-cover"
+                        />
+                      </div>
+                    );
+                  })}
+                {remainingVoters && remainingVoters > 0 && (
+                  <span className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-white shadow-lg text-slate-800 font-bold">
+                    +{remainingVoters}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <Link
+              href={`/dashboard/elections/${election.election_id}/results`}
+              className="text-blue-500 w-fit ml-auto mt-2 hover:underline"
+            >
+              results
+            </Link>
           </div>
-        )}
+          <RegisterForElection election={election} token={token} user={user} />
+          {isAdmin && (
+            <div className="bg-gradient-to-r from-white via-slate-50 to-slate-100 h-fit w-full rounded-lg shadow p-3 flex flex-col">
+              <p>admin can delete or edit the elections details</p>
+              <AdminElectionActions
+                user={user}
+                token={token}
+                election={election}
+              />
+            </div>
+          )}
+        </div>
+        <div className=" col-span-4 flex flex-col gap-y-2 items-center pb-10">
+          <Candidates election={election} token={token} user={user} />
+        </div>
       </div>
-      <div className=" col-span-4 flex flex-col gap-y-2 items-center pb-10">
-        <Candidates election={election} token={token} user={user} />
-      </div>
-    </div>
+    </>
   );
 }
 
