@@ -31,7 +31,7 @@ export default function Elections({ data }: Props) {
   const isAdmin = user?.user_role === "admin";
   const isElectionClosed = (election: Election) => {
     if (!election) return false;
-    const endDate = new Date(election?.election_end_date);
+    const endDate = election?.election_end_date;
     return new Date() >= endDate;
   };
 

@@ -55,6 +55,7 @@ model Candidate {
   candidate_profile_id        Int
   Vote                        Vote[]
   vote_count                  Int      @default(0)
+  Result                      Result[]
 }
 
 model Voter {
@@ -100,6 +101,18 @@ model Election {
   election_created_at DateTime       @default(now())
   Voter               Voter[]
   Candidate           Candidate[]
+  Result              Result[]
+  results_published   Boolean        @default(false)
+}
+
+model Result {
+  result_id           Int       @id @default(autoincrement())
+  result_election     Election  @relation(fields: [result_election_id], references: [election_id])
+  result_election_id  Int
+  result_position     String    @unique
+  result_candidate    Candidate @relation(fields: [result_candidate_id], references: [candidate_id])
+  result_candidate_id Int
+  result_votes        Int       @default(0)
 }
 
 enum ElectionStatus {

@@ -1,26 +1,37 @@
-import { Profile, Role } from "@prisma/client";
+import { CheckBadgeIcon } from "@heroicons/react/24/outline";
+import { Profile, Result, Role } from "@prisma/client";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import React from "react";
 import prisma from "../../../../../lib/prisma";
 import { DecodedToken } from "../../../../backend-utils/types";
 import DashboardLayout from "../../../../components/layout/dashboard";
+import Button from "../../../../components/utils/button";
 
-type Props = {};
+type Props = {
+  data: Data;
+};
 
-export default function Results({}: Props) {
+export default function Results({ data }: Props) {
+  const { token, user, results } = data;
+
+  const publishResults = () => {};
+
+  const isAdmin = user?.user_role === "admin";
   return (
-    <div className="w-full min-h-screen py-24">
-      <div className="max-w-lg  bg-white shadow rounded-lg mx-auto flex items-center ">
-        <div className="w-[50%] py-10 gap-y-2 h-[350px] bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100  rounded-lg shadow p-3 flex flex-col items-center justify-center">
-          <p>Michael Mambo</p>
-          <div className="w-44 h-44 rounded-full bg-slate-50 shadow flex flex-col items-center justify-center">
-            <p className="text-[50px] font-bold">40</p>
-            <p className="text-sm font-medium">of 50</p>
+    <div className="w-full min-h-screen py-4 px-2">
+      <div className="w-full flex items-center justify-end">
+        {isAdmin && (
+          <div className="ml-auto w-fit">
+            <Button
+              text="publish results"
+              onClick={() => publishResults()}
+              svg={<CheckBadgeIcon className="w-5 h-5" />}
+            />
           </div>
-          <p>this person had the highest votes</p>
-        </div>
+        )}
       </div>
+      <div className="bg-white max-w-xl"></div>
     </div>
   );
 }
@@ -34,6 +45,7 @@ type Data = {
     user_role: Role | null;
     user_username: string;
   } | null;
+  results: Result[];
 };
 
 export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
@@ -76,11 +88,44 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     },
   });
 
+  const election_id = context.query.id;
+
+  const findElection = await prisma.election.findUnique({
+    where: {
+      election_id: Number(election_id),
+    },
+    include: {
+      Candidate: {
+        include: {
+          candidate_profile: true,
+        },
+      },
+      Vote: true,
+    },
+  });
+
+  if (findElection?.election_status !== "closed") {
+    return {
+      redirect: {
+        permanent: false,
+        destination: `/dashboard/elections/${election_id}`,
+      },
+    };
+  }
+  const results = await prisma.result.findMany({
+    where: {
+      result_election: {
+        election_id: findElection.election_id,
+      },
+    },
+  });
+
   return {
     props: {
       data: {
         token: access_token,
         user: loggedInUser,
+        results: results,
       },
     },
   };
