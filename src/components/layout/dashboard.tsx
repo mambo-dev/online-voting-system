@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: Props) {
         <nav
           className={` ${
             !openNavigation && "hidden"
-          } w-full  flex flex-col gap-y-3  px-2 top-0 bottom-0 left-0 right-0 shadow  absolute  md:relative md:w-[20%]  bg-white h-full `}
+          } w-full z-20  flex flex-col gap-y-3  px-2 top-0 bottom-0 left-0 right-0 shadow  absolute  md:relative md:w-[20%]  bg-white h-full `}
         >
           <div className="flex items-center justify-center h-16 px-2">
             <h1 className="text-2xl tracking-widest font-bold bg-clip-text text-transparent bg-gradient-to-tr from-amber-500 to-amber-600">

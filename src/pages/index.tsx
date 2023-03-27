@@ -88,7 +88,7 @@ export default function Home() {
             <Image alt="login banner" src="/images/login.svg" fill sizes="" />
           </div>
           <form
-            className="flex z-10 md:-ml-16 flex-col h-full items-center justify-center gap-y-4 bg-white shadow rounded-lg py-10 px-8 w-full md:w-1/2"
+            className="flex z-10 md:-ml-16 flex-col h-full items-center justify-center gap-y-4 bg-white shadow rounded-lg py-10 px-2 md:px-8 w-full md:w-1/2"
             onSubmit={handleSubmit}
           >
             <Input

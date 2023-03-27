@@ -106,7 +106,7 @@ export default function Register({}: Props) {
           <Image alt="login banner" src="/images/register.svg" fill sizes="" />
         </div>
         <form
-          className="flex z-10 md:-ml-16 mt-20 flex-col h-fit items-center justify-center gap-y-4 bg-white shadow rounded-lg py-10 px-8 w-full md:w-1/2"
+          className="flex z-10 md:-ml-16 mt-20 flex-col h-fit items-center justify-center gap-y-4 bg-white shadow rounded-lg py-10 px-2 md:px-8  w-full md:w-1/2"
           onSubmit={handleSubmit}
         >
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
