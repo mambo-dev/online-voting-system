@@ -113,6 +113,7 @@ model Result {
   result_candidate    Candidate @relation(fields: [result_candidate_id], references: [candidate_id])
   result_candidate_id Int
   result_votes        Int       @default(0)
+  result_position_winner Boolean @default(false)
 }
 
 enum ElectionStatus {

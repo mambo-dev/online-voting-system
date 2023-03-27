@@ -117,6 +117,7 @@ export default async function handler(
       });
     }
     const results: any = {};
+    const winners: any = {};
 
     // Aggregate votes by position and candidate
     findElection.Vote.forEach((vote) => {
@@ -133,6 +134,15 @@ export default async function handler(
           votes: 0,
         };
       }
+      if (
+        !winners[position] ||
+        results[position][candidateId].votes > winners[position].votes
+      ) {
+        winners[position] = {
+          candidate: vote.vote_candidate,
+          votes: results[position][candidateId].votes,
+        };
+      }
 
       results[position][candidateId].votes++;
     });
@@ -141,13 +151,15 @@ export default async function handler(
     const resultData: any[] = [];
     Object.keys(results).forEach((position) => {
       Object.keys(results[position]).forEach((candidateId) => {
+        const candidate = results[position][candidateId].candidate;
         const votes = results[position][candidateId].votes;
-
+        const isWinner =
+          candidate.candidate_id === winners[position].candidate.candidate_id;
         resultData.push({
           result_election_id: findElection.election_id,
           result_position: position,
           result_candidate_id: Number(candidateId),
-
+          result_position_winner: isWinner,
           result_votes: votes,
         });
       });

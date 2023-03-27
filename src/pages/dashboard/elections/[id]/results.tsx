@@ -1,4 +1,8 @@
-import { CheckBadgeIcon } from "@heroicons/react/24/outline";
+import {
+  CheckBadgeIcon,
+  ChevronDoubleRightIcon,
+  StarIcon,
+} from "@heroicons/react/24/outline";
 import {
   Candidate,
   Election,
@@ -10,12 +14,14 @@ import {
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import prisma from "../../../../../lib/prisma";
 import { DecodedToken, HandleError } from "../../../../backend-utils/types";
 import DashboardLayout from "../../../../components/layout/dashboard";
 import Button from "../../../../components/utils/button";
+import DisclosureComp from "../../../../components/utils/disclosure";
 import ErrorMessage from "../../../../components/utils/error";
 import Success from "../../../../components/utils/success";
 
@@ -133,6 +139,65 @@ export default function Results({ data }: Props) {
           </div>
         </div>
       )}
+
+      <div className="w-full py-10">
+        <div className="w-full md:w-1/2 mx-auto px-2 py-5">
+          <ul
+            role="list"
+            className="divide-y divide-gray-200 rounded-md border border-gray-200 bg-white shadow-lg"
+          >
+            {results.length > 0 ? (
+              results.map((result) => (
+                <DisclosureComp
+                  key={result.result_id}
+                  button={
+                    <div className="w-full flex items-center justify-start gap-x-4 py-2">
+                      <div className="flex-1 flex items-center gap-x-4">
+                        <span>
+                          {
+                            result.result_candidate.candidate_profile
+                              .profile_full_name
+                          }
+                        </span>
+                        <span>
+                          {result.result_candidate.candidate_vying_position}
+                        </span>
+
+                        <span>
+                          {result.result_position_winner ? (
+                            <span className="py-1 bg-green-300 rounded-full   px-8 text-sm font-bold text-slate-800">
+                              {" "}
+                              winner{" "}
+                            </span>
+                          ) : (
+                            <span className="py-1 bg-yellow-300 rounded-full   px-8 text-sm font-bold text-slate-800">
+                              runners up
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <span className="mr-10 text-xs font-semibold rounded border-slate-300 border shadow bg-gradient-to-tr from-white to-slate-50 flex items-center justify-center py-1 px-2">
+                        {result.result_votes}
+                      </span>
+                    </div>
+                  }
+                  panel={
+                    <div className="py-2 flex flex-col">
+                      <span>
+                        {result.result_candidate.candidate_vying_description}
+                      </span>
+                    </div>
+                  }
+                />
+              ))
+            ) : (
+              <div className="py-2 px-1 text-red-500 font-semibold text-sm">
+                <span>no results yet</span>
+              </div>
+            )}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
@@ -146,7 +211,11 @@ type Data = {
     user_role: Role | null;
     user_username: string;
   } | null;
-  results: Result[];
+  results: (Result & {
+    result_candidate: Candidate & {
+      candidate_profile: Profile;
+    };
+  })[];
   election:
     | (Election & {
         Candidate: (Candidate & {
@@ -227,6 +296,16 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     where: {
       result_election: {
         election_id: findElection?.election_id,
+      },
+    },
+    orderBy: {
+      result_position_winner: "desc",
+    },
+    include: {
+      result_candidate: {
+        include: {
+          candidate_profile: true,
+        },
       },
     },
   });
