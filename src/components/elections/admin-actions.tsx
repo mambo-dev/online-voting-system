@@ -15,7 +15,7 @@ type Props = {
     user_role: Role | null;
     user_username: string;
   } | null;
-  election: ElectionCandidatesVoters | null;
+  election: ElectionCandidatesVoters;
   token: string;
 };
 
