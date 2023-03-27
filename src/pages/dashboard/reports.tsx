@@ -1,10 +1,23 @@
-import { Profile, Role, User } from "@prisma/client";
+import {
+  Candidate,
+  Election,
+  Profile,
+  Result,
+  Role,
+  User,
+  Voter,
+} from "@prisma/client";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import React, { useState } from "react";
 import prisma from "../../../lib/prisma";
-import { DecodedToken, HandleError } from "../../backend-utils/types";
+import { exportToExcel } from "../../backend-utils/excel";
+import {
+  DecodedToken,
+  ElectionReports,
+  HandleError,
+} from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
 import Button from "../../components/utils/button";
 import ErrorMessage from "../../components/utils/error";
@@ -14,7 +27,10 @@ type Props = { data: Data };
 
 export default function Reports({ data }: Props) {
   const { user, token } = data;
-  const [reportsGenerated, setGeneratedReports] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [generatedReports, setGeneratedReports] = useState<ElectionReports[]>(
+    []
+  );
   const [errors, setErrors] = useState<HandleError[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -36,7 +52,7 @@ export default function Reports({ data }: Props) {
         generated,
         errors: serverErrors,
       }: {
-        generated: boolean | null;
+        generated: ElectionReports[] | null;
         errors: HandleError[] | [];
       } = await res.data;
 
@@ -46,11 +62,13 @@ export default function Reports({ data }: Props) {
         setErrors([...serverErrors]);
         return;
       }
+
+      setGeneratedReports(generated);
       setLoading(false);
-      setGeneratedReports(true);
+      setSuccess(true);
       setErrors([]);
       setTimeout(() => {
-        setGeneratedReports(false);
+        setSuccess(false);
       }, 1000);
     } catch (error: any) {
       console.log(error);
@@ -96,7 +114,7 @@ export default function Reports({ data }: Props) {
           <p className="text-slate-700 font-medium">
             reports are generated for all elections
           </p>
-          {!reportsGenerated ? (
+          {generatedReports.length <= 0 ? (
             <div className="w-fit">
               <Button
                 text="generate reports"
@@ -126,7 +144,18 @@ export default function Reports({ data }: Props) {
             <div className="w-fit">
               <button
                 className="w-full py-2 px-4 inline-flex items-center justify-center gap-x-2 rounded-lg bg-green-500 text-white text-sm font-bold hover:bg-green-600 focus:border focus:ring-1 ring-offset-1 border-green-400 ring-green-300"
-                onClick={() => generateReports()}
+                onClick={() => {
+                  let id = 0;
+                  exportToExcel({
+                    Dbdata: generatedReports,
+                    filename: `${user?.user_username}-${
+                      user?.user_role
+                    }${(id += 1)}-cases`,
+                    filetype:
+                      "application/vnd.openxmlfromats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+                    fileExtension: ".xlsx",
+                  });
+                }}
               >
                 {" "}
                 <svg
@@ -147,13 +176,13 @@ export default function Reports({ data }: Props) {
               </button>
             </div>
           )}
-        </div>
-        <div className="flex w-full items-center justify-center">
-          <ErrorMessage errors={errors} />
-          <Success
-            message="succesfully generated reports"
-            success={reportsGenerated}
-          />
+          <div className="flex w-fit items-center justify-center">
+            <ErrorMessage errors={errors} />
+            <Success
+              message="succesfully generated reports"
+              success={success}
+            />
+          </div>
         </div>
       </div>
     </div>
