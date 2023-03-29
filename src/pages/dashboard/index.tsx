@@ -5,10 +5,11 @@ import React from "react";
 import prisma from "../../../lib/prisma";
 import { DecodedToken } from "../../backend-utils/types";
 import DashboardLayout from "../../components/layout/dashboard";
-import { getHours } from "date-fns";
+import { formatRelative, getHours, subDays } from "date-fns";
 import Link from "next/link";
 import { ArrowLongRightIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
+import Display from "../../components/dashboard/display";
 
 type Props = {
   data: Data;
@@ -21,42 +22,58 @@ export default function Home({ data }: Props) {
   const hour = getHours(currentTime);
   return (
     <div className="w-full flex flex-col py-4">
-      <div className="grid grid-cols-1 md:grid-cols-6 py-4 px-2">
-        <div className="col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center">
-          <div className="w-full sm:w-3/4 text-left flex items-start justify-start flex-col gap-y-2 ">
-            <h1 className="text-xl font-bold text-slate-700">
-              {hour < 12
-                ? `Good morning ${user?.user_username}`
-                : hour < 18
-                ? `Good afternoon ${user?.user_username}`
-                : `Good evening ${user?.user_username}`}
-            </h1>
-            <p className="text-slate-700">
-              {electionsAnalysis.totalUpcomingElections > 0
-                ? `you have ${electionsAnalysis.totalUpcomingElections}`
-                : "you have no upcoming elections"}
-            </p>
-            <Link
-              href="/dashboard/elections"
-              className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1"
-            >
-              view all elections{" "}
-              <ArrowLongRightIcon className="w-4 h-4 group-hover:animate-bounce " />
-            </Link>
-          </div>
-          <div className="relative hidden sm:flex  h-[150px]">
-            <Image
-              alt="welcome"
-              src="/images/welcome.svg"
-              width={100}
-              height={100}
-              className="w-full h-full"
-            />
-          </div>
-        </div>
-        <div className=""></div>
-        <div className=""></div>
-        <div className=""></div>
+      <div className="grid grid-cols-1 md:grid-cols-9 py-4 px-2 gap-2 h-[250px] ">
+        <Display
+          className="col-span-3 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          title={
+            hour < 12
+              ? `Good morning ${user?.user_username}`
+              : hour < 18
+              ? `Good afternoon ${user?.user_username}`
+              : `Good evening ${user?.user_username}`
+          }
+          imageLink=""
+          link="/dashboard/elections"
+          secondaryTitle={
+            electionsAnalysis.totalUpcomingElections > 0
+              ? `you have ${electionsAnalysis.totalUpcomingElections} upcoming elections`
+              : "you have no upcoming elections"
+          }
+          tertiaryTitle="view all elections"
+        />
+        <Display
+          number
+          className="w-full col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          title="Total elections"
+          secondaryTitle={electionsAnalysis.totalElections}
+          tertiaryTitle={`since ${formatRelative(
+            subDays(new Date(), 3),
+            new Date()
+          )}`}
+          imageLink="/images/totals.svg"
+        />
+        <Display
+          number
+          className="w-full col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          title="open elections"
+          secondaryTitle={electionsAnalysis.totalOpenElections}
+          tertiaryTitle={`since ${formatRelative(
+            subDays(new Date(), 3),
+            new Date()
+          )}`}
+          imageLink="/images/open.svg"
+        />
+        <Display
+          number
+          className="w-full col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          title="closed elections"
+          secondaryTitle={electionsAnalysis.totalClosedElections}
+          tertiaryTitle={`since ${formatRelative(
+            subDays(new Date(), 3),
+            new Date()
+          )}`}
+          imageLink="/images/closed.svg"
+        />
       </div>
     </div>
   );
