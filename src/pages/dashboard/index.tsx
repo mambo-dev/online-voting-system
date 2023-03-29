@@ -32,9 +32,9 @@ export default function Home({ data }: Props) {
   console.log(electionsAnalysis.latestElection);
   return (
     <div className="w-full flex flex-col py-4">
-      <div className="grid grid-cols-1 md:grid-cols-9 py-4 px-2 gap-2 h-[250px] ">
+      <div className="grid grid-cols-1 md:grid-cols-9 py-4 px-2 gap-2 md:h-[250px] ">
         <Display
-          className="col-span-3 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          className=" md:col-span-3 bg-white shadow rounded-lg py-2 px-2  h-full flex items-center"
           title={
             hour < 12
               ? `Good morning ${user?.user_username}`
@@ -53,7 +53,7 @@ export default function Home({ data }: Props) {
         />
         <Display
           number
-          className="w-full col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          className="w-full md:col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
           title="Total elections"
           secondaryTitle={electionsAnalysis.totalElections}
           tertiaryTitle={`since ${formatRelative(
@@ -64,7 +64,7 @@ export default function Home({ data }: Props) {
         />
         <Display
           number
-          className="w-full col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          className="w-full md:col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
           title="open elections"
           secondaryTitle={electionsAnalysis.totalOpenElections}
           tertiaryTitle={`since ${formatRelative(
@@ -75,7 +75,7 @@ export default function Home({ data }: Props) {
         />
         <Display
           number
-          className="w-full col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
+          className="w-full md:col-span-2 bg-white shadow rounded-lg py-2 px-2 h-full flex items-center"
           title="closed elections"
           secondaryTitle={electionsAnalysis.totalClosedElections}
           tertiaryTitle={`since ${formatRelative(
@@ -85,10 +85,66 @@ export default function Home({ data }: Props) {
           imageLink="/images/closed.svg"
         />
       </div>
-      <div className="relative w-full grid grid-cols-1 md:grid-cols-9 py-4 md:py-0 px-2 gap-2 ">
-        <GraphDisplay elections={electionsAnalysis.elections} />
-        <div className="w-full bg-white rounded-lg shadow text-center">
-          <h1>recent election winners</h1>
+      <div className="grid  grid-cols-1 md:grid-cols-9  px-2 gap-2 ">
+        <div className="w-full col-span-1 md:col-span-6">
+          <GraphDisplay elections={electionsAnalysis.elections} />
+        </div>
+        <div className="w-full col-span-3 bg-white rounded-lg shadow text-center h-fit py-4">
+          <h1 className="text-lg font-semibold py-2">
+            Recent election winners
+          </h1>
+          <ul
+            role="list"
+            className="divide-y divide-gray-200 w-full border border-gray-200 bg-white "
+          >
+            {electionsAnalysis.latestElection
+              ?.filter((result) => result.candidate_is_winner)
+              .map((result) => {
+                return (
+                  <li
+                    key={result.candidate_id}
+                    className="py-3 px-2 flex items-center "
+                  >
+                    <div className="relative h-12 w-12 rounded-full ring-2 ring-white">
+                      <Image
+                        src={
+                          result.candidate_profile_picture &&
+                          result.candidate_profile_picture.length > 0 &&
+                          result.candidate_profile_picture.split("es/")[1] !==
+                            "undefined"
+                            ? result.candidate_profile_picture
+                            : "/images/avatar.png"
+                        }
+                        alt="profile image"
+                        width={100}
+                        height={100}
+                        className="rounded-full w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col flex-1 text-left px-3">
+                      <h2 className="text-lg font-semibold text-slate-700">
+                        {result.candidate_election_name}
+                      </h2>
+                      <div className="flex gap-x-2 py-1">
+                        <span className="text-sm  text-slate-700">
+                          {result.candidate_name}
+                        </span>
+                        <span className="bg-clip-text text-transparent bg-gradient-to-tr from-amber-500 to-amber-600 text-sm font-medium ">
+                          {result.candidate_position}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+          </ul>
+          <Link
+            href={`/dashboard/elections/${electionsAnalysis.latestElection[0].candidate_election_id}/results`}
+            className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1 mt-3"
+          >
+            view elections
+            <ArrowLongRightIcon className="w-4 h-4 group-hover:animate-bounce " />
+          </Link>
         </div>
       </div>
     </div>
@@ -113,8 +169,9 @@ type Data = {
           candidate_is_winner: boolean;
           candidate_profile_picture: string;
           candidate_position: string;
-        }[]
-      | undefined;
+          candidate_election_id: number;
+          candidate_election_name: string;
+        }[];
     totalElections: number;
     totalOpenElections: number;
     totalClosedElections: number;
@@ -217,6 +274,8 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
       candidate_is_winner: results.result_position_winner,
       candidate_profile_picture: data.publicUrl,
       candidate_position: results.result_position,
+      candidate_election_id: elections[0].election_id,
+      candidate_election_name: elections[0].election_name,
     };
   });
 

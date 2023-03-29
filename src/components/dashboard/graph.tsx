@@ -25,7 +25,7 @@ export default function GraphDisplay({ elections }: Props) {
   ];
 
   return (
-    <div className="h-[500px] w-full  md:col-span-6 bg-white rounded shadow-lg flex items-center justify-center px-2 py-4">
+    <div className="h-[500px]  bg-white rounded shadow-lg flex items-center justify-center px-2 py-4">
       <ResponsiveLine
         data={data}
         margin={{ top: 50, right: 50, bottom: 50, left: 50 }}
