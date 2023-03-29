@@ -138,7 +138,7 @@ export default function Home({ data }: Props) {
                 );
               })}
           </ul>
-          {electionsAnalysis.latestElection?.length > 0 ? (
+          {electionsAnalysis.latestElection?.length <= 0 ? (
             <Link
               href={`/dashboard`}
               className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1 mt-3"
@@ -181,7 +181,8 @@ type Data = {
           candidate_position: string;
           candidate_election_id: number;
           candidate_election_name: string;
-        }[];
+        }[]
+      | [];
     totalElections: number;
     totalOpenElections: number;
     totalClosedElections: number;
@@ -260,6 +261,28 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     },
   });
 
+  const lastElection = await prisma.election.findFirst({
+    orderBy: {
+      election_end_date: "desc",
+    },
+    include: {
+      Result: {
+        include: {
+          result_candidate: {
+            include: {
+              candidate_profile: true,
+            },
+          },
+        },
+      },
+      Voter: {
+        include: {
+          voter_profile: true,
+        },
+      },
+    },
+  });
+
   const totalElections = elections.length;
   const totalOpenElections = elections.filter(
     (election) => election.election_status === "open"
@@ -271,7 +294,7 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     (election) => election.election_status === "upcoming"
   ).length;
 
-  const latestElection = elections[0]?.Result.map((results) => {
+  const latestElection = lastElection?.Result.map((results) => {
     const { data } = supabase.storage
       .from("upload-images")
       .getPublicUrl(
@@ -284,8 +307,8 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
       candidate_is_winner: results.result_position_winner,
       candidate_profile_picture: data.publicUrl,
       candidate_position: results.result_position,
-      candidate_election_id: elections[0].election_id,
-      candidate_election_name: elections[0].election_name,
+      candidate_election_id: elections[0]?.election_id,
+      candidate_election_name: elections[0]?.election_name,
     };
   });
 
@@ -300,7 +323,7 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
           totalOpenElections,
           totalClosedElections,
           totalUpcomingElections,
-          latestElection,
+          latestElection: latestElection ? latestElection : [],
         },
       },
     },
