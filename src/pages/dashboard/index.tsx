@@ -1,4 +1,11 @@
-import { Election, Profile, Role, User } from "@prisma/client";
+import {
+  Candidate,
+  Election,
+  Profile,
+  Result,
+  Role,
+  User,
+} from "@prisma/client";
 import jwtDecode from "jwt-decode";
 import { GetServerSideProps } from "next";
 import React from "react";
@@ -10,6 +17,8 @@ import Link from "next/link";
 import { ArrowLongRightIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Display from "../../components/dashboard/display";
+import GraphDisplay from "../../components/dashboard/graph";
+import { supabase } from "../../../lib/supabase";
 
 type Props = {
   data: Data;
@@ -20,6 +29,7 @@ export default function Home({ data }: Props) {
 
   const currentTime = new Date();
   const hour = getHours(currentTime);
+  console.log(electionsAnalysis.latestElection);
   return (
     <div className="w-full flex flex-col py-4">
       <div className="grid grid-cols-1 md:grid-cols-9 py-4 px-2 gap-2 h-[250px] ">
@@ -75,6 +85,12 @@ export default function Home({ data }: Props) {
           imageLink="/images/closed.svg"
         />
       </div>
+      <div className="relative w-full grid grid-cols-1 md:grid-cols-9 py-4 md:py-0 px-2 gap-2 ">
+        <GraphDisplay elections={electionsAnalysis.elections} />
+        <div className="w-full bg-white rounded-lg shadow text-center">
+          <h1>recent election winners</h1>
+        </div>
+      </div>
     </div>
   );
 }
@@ -89,13 +105,30 @@ type Data = {
     user_username: string;
   } | null;
   electionsAnalysis: {
-    elections: Election[];
+    elections: ElectionsResults;
+    latestElection:
+      | {
+          candidate_id: number;
+          candidate_name: string;
+          candidate_is_winner: boolean;
+          candidate_profile_picture: string;
+          candidate_position: string;
+        }[]
+      | undefined;
     totalElections: number;
     totalOpenElections: number;
     totalClosedElections: number;
     totalUpcomingElections: number;
   };
 };
+
+export type ElectionsResults = (Election & {
+  Result: (Result & {
+    result_candidate: Candidate & {
+      candidate_profile: Profile;
+    };
+  })[];
+})[];
 
 //@ts-ignore
 export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
@@ -138,7 +171,27 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     },
   });
 
-  const elections = await prisma.election.findMany({});
+  const elections = await prisma.election.findMany({
+    orderBy: {
+      election_end_date: "desc",
+    },
+    include: {
+      Result: {
+        include: {
+          result_candidate: {
+            include: {
+              candidate_profile: true,
+            },
+          },
+        },
+      },
+      Voter: {
+        include: {
+          voter_profile: true,
+        },
+      },
+    },
+  });
 
   const totalElections = elections.length;
   const totalOpenElections = elections.filter(
@@ -151,6 +204,22 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
     (election) => election.election_status === "upcoming"
   ).length;
 
+  const latestElection = elections[0]?.Result.map((results) => {
+    const { data } = supabase.storage
+      .from("upload-images")
+      .getPublicUrl(
+        `${results.result_candidate.candidate_profile.profile_image}`
+      );
+    return {
+      candidate_id: results.result_candidate.candidate_id,
+      candidate_name:
+        results.result_candidate.candidate_profile.profile_full_name,
+      candidate_is_winner: results.result_position_winner,
+      candidate_profile_picture: data.publicUrl,
+      candidate_position: results.result_position,
+    };
+  });
+
   return {
     props: {
       data: {
@@ -162,6 +231,7 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
           totalOpenElections,
           totalClosedElections,
           totalUpcomingElections,
+          latestElection,
         },
       },
     },

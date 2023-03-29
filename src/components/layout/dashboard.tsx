@@ -13,6 +13,7 @@ import {
 import { Role } from "@prisma/client";
 import Link from "next/link";
 import React, { JSXElementConstructor, useState } from "react";
+import Container from "../utils/container";
 import MenuOptions from "../utils/menu";
 
 type Props = {
@@ -60,12 +61,12 @@ const sideLinks = [
 export default function DashboardLayout({ children }: Props) {
   const [openNavigation, setOpenNavigation] = useState(false);
   return (
-    <main className="  w-full min-h-screen flex flex-col   items-center">
-      <div className="w-full h-screen flex items-center ">
+    <Container>
+      <div className="w-full h-full flex items-center ">
         <nav
           className={` ${
             !openNavigation && "hidden"
-          } w-full z-20  flex flex-col gap-y-3  px-2 top-0 bottom-0 left-0 right-0 shadow  absolute  md:relative md:w-[20%]  bg-white h-full `}
+          } w-full z-10   flex flex-col gap-y-3  px-2 top-0 bottom-0 left-0 right-0 shadow  absolute  md:relative md:w-[20%]  bg-white h-full `}
         >
           <div className="flex items-center justify-center h-16 px-2">
             <h1 className="text-2xl tracking-widest font-bold bg-clip-text text-transparent bg-gradient-to-tr from-amber-500 to-amber-600">
@@ -126,6 +127,6 @@ export default function DashboardLayout({ children }: Props) {
           {children}
         </div>
       </div>
-    </main>
+    </Container>
   );
 }
