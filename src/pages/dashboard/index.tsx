@@ -138,13 +138,23 @@ export default function Home({ data }: Props) {
                 );
               })}
           </ul>
-          <Link
-            href={`/dashboard/elections/${electionsAnalysis.latestElection[0].candidate_election_id}/results`}
-            className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1 mt-3"
-          >
-            view elections
-            <ArrowLongRightIcon className="w-4 h-4 group-hover:animate-bounce " />
-          </Link>
+          {electionsAnalysis.latestElection.length > 0 ? (
+            <Link
+              href={`/dashboard`}
+              className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1 mt-3"
+            >
+              no elections created
+              <ArrowLongRightIcon className="w-4 h-4 group-hover:animate-bounce " />
+            </Link>
+          ) : (
+            <Link
+              href={`/dashboard/elections/${electionsAnalysis.latestElection[0]?.candidate_election_id}/results`}
+              className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1 mt-3"
+            >
+              view elections
+              <ArrowLongRightIcon className="w-4 h-4 group-hover:animate-bounce " />
+            </Link>
+          )}
         </div>
       </div>
     </div>
