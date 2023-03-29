@@ -138,7 +138,7 @@ export default function Home({ data }: Props) {
                 );
               })}
           </ul>
-          {electionsAnalysis.latestElection.length > 0 ? (
+          {electionsAnalysis.latestElection?.length > 0 ? (
             <Link
               href={`/dashboard`}
               className="text-blue-500 hover:underline group flex items-center justify-center gap-x-1 mt-3"
