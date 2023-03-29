@@ -262,6 +262,9 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
   });
 
   const lastElection = await prisma.election.findFirst({
+    where: {
+      results_published: true,
+    },
     orderBy: {
       election_end_date: "desc",
     },
@@ -307,8 +310,8 @@ export const getServerSideProps: GetServerSideProps<{ data: Data }> = async (
       candidate_is_winner: results.result_position_winner,
       candidate_profile_picture: data.publicUrl,
       candidate_position: results.result_position,
-      candidate_election_id: elections[0]?.election_id,
-      candidate_election_name: elections[0]?.election_name,
+      candidate_election_id: lastElection?.election_id,
+      candidate_election_name: lastElection?.election_name,
     };
   });
 
